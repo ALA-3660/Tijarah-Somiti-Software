@@ -1,0 +1,30 @@
+name: tijarah_samity_software
+description: "তিজারাহ সমিতি সফটওয়্যার — ইসলামি মূল্যবোধে সমিতি পরিচালনা ও হালাল ব্যবসার আধুনিক ব্যবস্থাপনা।"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Network & API
+  http: ^1.2.0
+  # Secure Storage & Session (Hardware keystore / SharedPreferences)
+  flutter_secure_storage: ^9.0.0
+  shared_preferences: ^2.2.2
+  # State & Utilities
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
