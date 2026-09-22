@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../features/authentication/presentation/screens/login_screen.dart';
 import 'navigation_registry.dart';
 import 'route_names.dart';
 import '../../shared/layouts/app_navigation_shell.dart';
@@ -28,11 +29,7 @@ class AppRouter {
     if (routeName == RouteNames.login) {
       return MaterialPageRoute(
         settings: settings,
-        builder: (_) => const Scaffold(
-          body: Center(
-            child: Text('লগইন স্ক্রিন (ভবিষ্যতের অথেনটিকেশন মডিউলে তৈরি হবে)'),
-          ),
-        ),
+        builder: (_) => const LoginScreen(),
       );
     }
 

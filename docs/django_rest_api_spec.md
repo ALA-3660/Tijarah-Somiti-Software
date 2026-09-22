@@ -1,97 +1,88 @@
-# Django REST API & PostgreSQL ইন্টিগ্রেশন স্পেসিফিকেশন
+# তিজারাহ সমিতি সফটওয়্যার — Django REST API Specification
 
-## ১. মাল্টি-টেন্যান্ট ডেটা আইসোলেশন (Data Isolation)
+## Membership Application Endpoints (`/api/v1/members/applications/`)
 
-Flutter ক্লায়েন্ট থেকে প্রতিটি অনুরোধে নিচের হেডারটি অন্তর্ভুক্ত থাকে:
-```http
-X-Organization-Id: <uuid-of-organization>
-Authorization: Bearer <jwt-access-token>
-Content-Type: application/json
-```
-
-### Django ব্যাকএন্ডে হ্যান্ডলিং নীতি:
-```python
-# Django Middleware Concept:
-class TenantContextMiddleware:
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        org_id = request.headers.get('X-Organization-Id')
-        if org_id:
-            request.organization = Organization.objects.get(id=org_id)
-        return self.get_response(request)
-```
-
-## ২. PostgreSQL ডেটাবেজ নীতি
-* প্রতিটি ব্যবসায়িক টেবিলে `organization_id` কলাম ফরেন কি হিসেবে থাকবে।
-* ব্যাকএন্ড কোয়েরি স্বয়ংক্রিয়ভাবে ফিল্টার করবে: `Model.objects.filter(organization=request.organization)`
-* এক সমিতির ডাটা অন্য সমিতি দেখতে পারবে না।
-
-## ৩. অডিট ট্রেইল স্পেসিফিকেশন
-* টেবিলগুলোতে থাকবে:
-  - `created_by_id`, `created_at`
-  - `updated_by_id`, `updated_at`
-  - `approved_by_id`, `approved_at`
-  - `status` (DRAFT, PENDING, APPROVED, REVERSED)
-
----
-
-## ৪. Organization Management API Endpoints (Prompt 2.1)
-
-### ক. বর্তমান সক্রিয় সমিতি আনয়ন (Get Current Organization)
-* **Method:** `GET`
-* **URL:** `/api/v1/organization/current/`
-* **Headers:** `X-Organization-Id: <uuid>`, `Authorization: Bearer <token>`
-* **Response (200 OK):**
+### ১. List & Search Applications
+- **Endpoint:** `GET /api/v1/members/applications/`
+- **Permissions:** `IsAuthenticated`, `HasPermission(membership.application.view)`
+- **Query Params:**
+  - `status`: `draft`, `submitted`, `under_review`, `correction_required`, `resubmitted`, `approved`, `rejected`, `withdrawn`
+  - `search`: string (matches `applicant_full_name`, `application_code`, `mobile`)
+  - `page`: integer
+- **Response:**
 ```json
 {
-  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "organization_code": "ALF-001",
-  "name": "আল-ফালাহ বহুমুখী সমবায় সমিতি লিমিটেড",
-  "short_name": "আল-ফালাহ সমিতি",
-  "organization_type": "society",
-  "status": "active",
-  "phone": "01711-223344",
-  "email": "info@alfalah-samity.org",
-  "address": "মিরপুর-১০, ঢাকা",
-  "description": "হালাল বিনিয়োগ ও সদস্যদের কল্যাণে পরিচালিত বহুমুখী সমবায় সমিতি।",
-  "logo": "https://api.tijarah.org/media/logos/alfalah.png",
-  "created_at": "2018-05-12T00:00:00.000Z",
-  "updated_at": "2026-09-22T00:00:00.000Z",
-  "created_by": "System Administrator",
-  "updated_by": "Authorized Operator"
+  "count": 4,
+  "results": [
+    {
+      "id": "app-seed-001",
+      "organization_id": "demo-org-khurushkul",
+      "application_code": "APP-000001",
+      "applicant_full_name": "মাওলানা আব্দুল হক চৌধুরী",
+      "mobile": "01812999001",
+      "application_status": "under_review",
+      "submitted_at": "2026-09-18T10:00:00Z",
+      "created_at": "2026-09-17T09:00:00Z"
+    }
+  ]
 }
 ```
 
-### খ. সমিতি তথ্য হালনাগাদ (Update Organization)
-* **Method:** `PATCH`
-* **URL:** `/api/v1/organization/current/`
-* **Headers:** `X-Organization-Id: <uuid>`, `Authorization: Bearer <token>`
-* **Payload:**
+### ২. Create Draft Application
+- **Endpoint:** `POST /api/v1/members/applications/`
+- **Permissions:** `HasPermission(membership.application.create)`
+- **Body:**
 ```json
 {
-  "name": "আল-ফালাহ বহুমুখী সমবায় সমিতি লিমিটেড",
-  "short_name": "আল-ফালাহ সমিতি",
-  "organization_type": "society",
-  "phone": "01711-223344",
-  "email": "contact@alfalah-samity.org",
-  "address": "মিরপুর-১০, ঢাকা-১২১৬",
-  "description": "হালনাগাদকৃত প্রাতিষ্ঠানিক পরিচিতি।"
+  "applicant_full_name": "মাওলানা আব্দুর রহমান",
+  "mobile": "01812999005",
+  "email": "arahman@example.com",
+  "date_of_birth": "1992-06-15",
+  "gender": "male",
+  "occupation": "শিক্ষক",
+  "father_or_spouse_name": "আব্দুল মালেক",
+  "mother_name": "রাবেয়া খাতুন",
+  "current_address": "দক্ষিণ খুরুশকুল, কক্সবাজার",
+  "permanent_address": "দক্ষিণ খুরুশকুল, কক্সবাজার",
+  "is_same_address": true,
+  "nid": "19921234567890123",
+  "notes": "স্থানীয় সাধারণ সদস্যপদ আবেদন"
 }
 ```
-* **সীমাবদ্ধতা:** `id` এবং `organization_code` কোনোভাবেই ক্লায়েন্ট থেকে পরিবর্তনযোগ্য নয়।
 
-### গ. সমিতির স্ট্যাটাস লাইফসাইকেল পরিবর্তন (Update Status)
-* **Method:** `PATCH`
-* **URL:** `/api/v1/organization/current/status/`
-* **Payload:**
-```json
-{
-  "status": "suspended",
-  "reason": "আইনি নিরীক্ষার জন্য সাময়িক স্থগিত"
-}
-```
-* **মানসমূহ:** `active`, `inactive`, `suspended`, `archived`
-* **পলিসি:** নো হার্ড ডিলিট। Soft delete ও lifecycle স্ট্যাটাসের মাধ্যমে নিয়ন্ত্রিত।
+### ৩. Submit Application
+- **Endpoint:** `POST /api/v1/members/applications/{id}/submit/`
+- **Permissions:** `HasPermission(membership.application.submit)`
 
+### ৪. Review & Update Checklist
+- **Endpoint:** `POST /api/v1/members/applications/{id}/start-review/`
+- **Endpoint:** `PATCH /api/v1/members/applications/{id}/checklist/`
+- **Permissions:** `HasPermission(membership.application.review)`
+
+### ৫. Request Correction
+- **Endpoint:** `POST /api/v1/members/applications/{id}/request-correction/`
+- **Permissions:** `HasPermission(membership.application.correction)`
+- **Body:** `{"correction_reason": "স্থায়ী ঠিকানার প্রত্যয়নপত্র সংযুক্ত করুন।"}`
+
+### ৬. Resubmit Application
+- **Endpoint:** `POST /api/v1/members/applications/{id}/resubmit/`
+- **Permissions:** `HasPermission(membership.application.submit)`
+
+### ৭. Approve Application (Creates Member)
+- **Endpoint:** `POST /api/v1/members/applications/{id}/approve/`
+- **Permissions:** `HasPermission(membership.application.approve)`
+- **Constraints Enforced:**
+  - `creator_user_id != approver_user_id` (Separation of duties)
+  - Concurrency lock: `select_for_update()`
+  - Atomically creates `Member` with next `MEM-XXXXXX` code.
+- **Body:** `{"decision_reason": "কার্যনির্বাহী পরিষদের অনুমোদনপ্রাপ্ত।"}`
+
+### ৮. Reject Application
+- **Endpoint:** `POST /api/v1/members/applications/{id}/reject/`
+- **Permissions:** `HasPermission(membership.application.reject)`
+- **Body:** `{"rejection_reason": "সমিতির শর্তাবলি অপূর্ণ থাকায়..."}`
+
+### ৯. Withdraw Application
+- **Endpoint:** `POST /api/v1/members/applications/{id}/withdraw/`
+- **Permissions:** `HasPermission(membership.application.withdraw)`
+- **Body:** `{"withdrawal_reason": "ব্যক্তিগত কারণ..."}`

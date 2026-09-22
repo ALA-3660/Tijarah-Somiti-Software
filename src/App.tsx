@@ -10,7 +10,10 @@ import {
   BookOpen, 
   Sparkles,
   Type,
-  Compass
+  Compass,
+  KeyRound,
+  Users,
+  FileCheck
 } from 'lucide-react';
 import { AndroidDeviceFrame } from './components/AndroidDeviceFrame';
 import { ArchitectureDiagram } from './components/ArchitectureDiagram';
@@ -20,6 +23,10 @@ import { VerificationTests } from './components/VerificationTests';
 import { DesignSystemSpecimen } from './components/DesignSystemSpecimen';
 import { NavigationExplorer } from './components/NavigationExplorer';
 import { OrganizationManagementView } from './components/OrganizationManagementView';
+import { AuthenticationManagementView } from './components/AuthenticationManagementView';
+import { MemberProfileManagementView } from './components/MemberProfileManagementView';
+import { MembershipApplicationManagementView } from './components/MembershipApplicationManagementView';
+import { MemberMasterDataManagementView } from './components/MemberMasterDataManagementView';
 import { EnvironmentType, OrganizationContext, UiSimulatorState } from './types';
 
 export const DEMO_ORGANIZATION: OrganizationContext = {
@@ -95,7 +102,7 @@ const INITIAL_ORGS: OrganizationContext[] = [
 ];
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'organization' | 'navigation' | 'simulator' | 'design_system' | 'architecture' | 'code' | 'rules' | 'tests'>('organization');
+  const [activeTab, setActiveTab] = useState<'member_master_data' | 'member_profile' | 'member_application' | 'authentication' | 'organization' | 'navigation' | 'simulator' | 'design_system' | 'architecture' | 'code' | 'rules' | 'tests'>('member_master_data');
   const [environment, setEnvironment] = useState<EnvironmentType>('development');
   const [orgsList, setOrgsList] = useState<OrganizationContext[]>(INITIAL_ORGS);
   const [activeOrg, setActiveOrg] = useState<OrganizationContext>(DEMO_ORGANIZATION);
@@ -121,7 +128,7 @@ export default function App() {
                   তিজারাহ সমিতি সফটওয়্যার
                 </h1>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 font-numeric">
-                  Prompt 2.1 — Organization Management Foundation
+                  Phase 3 — Prompt 3.3 Application Workflow
                 </span>
               </div>
               <p className="text-xs text-slate-500 font-normal font-body">
@@ -151,6 +158,54 @@ export default function App() {
 
         {/* Tab Navigation */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex gap-1 sm:gap-2 overflow-x-auto text-xs border-t border-slate-100 font-numeric">
+          <button
+            onClick={() => setActiveTab('member_master_data')}
+            className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+              activeTab === 'member_master_data'
+                ? 'border-emerald-700 text-emerald-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Layers className="w-4 h-4 text-emerald-700" />
+            <span>মাস্টার ডাটা ও শ্রেণি (Prompt 3.4)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('member_profile')}
+            className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+              activeTab === 'member_profile'
+                ? 'border-emerald-700 text-emerald-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            <span>সদস্য প্রোফাইল ও শ্রেণি-সম্পর্ক (Prompt 3.4)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('member_application')}
+            className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+              activeTab === 'member_application'
+                ? 'border-emerald-700 text-emerald-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <FileCheck className="w-4 h-4" />
+            <span>সদস্যপদ আবেদন ও অনুমোদন (Prompt 3.3)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('authentication')}
+            className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+              activeTab === 'authentication'
+                ? 'border-emerald-700 text-emerald-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <KeyRound className="w-4 h-4" />
+            <span>অথেনটিকেশন ও সেশন (Prompt 2.2)</span>
+          </button>
+
           <button
             onClick={() => setActiveTab('organization')}
             className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
@@ -251,6 +306,75 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6">
+        {activeTab === 'member_master_data' && (
+          <MemberMasterDataManagementView
+            currentOrg={activeOrg}
+            onSyncOrganization={(orgId, orgName) => {
+              const found = orgsList.find((o) => o.id === orgId);
+              if (found) {
+                setActiveOrg(found);
+              } else {
+                setActiveOrg({
+                  ...activeOrg,
+                  id: orgId,
+                  name: orgName,
+                });
+              }
+            }}
+          />
+        )}
+        {activeTab === 'member_application' && (
+          <MembershipApplicationManagementView
+            currentOrg={activeOrg}
+            onSyncOrganization={(orgId, orgName) => {
+              const found = orgsList.find((o) => o.id === orgId);
+              if (found) {
+                setActiveOrg(found);
+              } else {
+                setActiveOrg({
+                  ...activeOrg,
+                  id: orgId,
+                  name: orgName,
+                });
+              }
+            }}
+          />
+        )}
+        {activeTab === 'member_profile' && (
+          <MemberProfileManagementView
+            currentOrg={activeOrg}
+            onSyncOrganization={(orgId, orgName) => {
+              const found = orgsList.find((o) => o.id === orgId);
+              if (found) {
+                setActiveOrg(found);
+              } else {
+                setActiveOrg({
+                  ...activeOrg,
+                  id: orgId,
+                  name: orgName,
+                });
+              }
+            }}
+          />
+        )}
+        {activeTab === 'authentication' && (
+          <AuthenticationManagementView
+            currentOrg={activeOrg}
+            onSyncOrganization={(orgId, orgName) => {
+              const found = orgsList.find((o) => o.id === orgId);
+              if (found) {
+                setActiveOrg(found);
+              } else {
+                setActiveOrg({
+                  ...activeOrg,
+                  id: orgId,
+                  name: orgName,
+                });
+              }
+            }}
+          />
+        )}
+
         {activeTab === 'organization' && (
           <div className="space-y-6">
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">

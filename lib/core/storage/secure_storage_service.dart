@@ -77,12 +77,85 @@ class SecureStorageService {
     }
   }
 
-  /// লগআউট বা সেশন রিসেট
+  /// সম্পূর্ণ সেশন মেটাডাটা সিকিউরলি সংরক্ষণ করা
+  Future<void> saveSession({
+    required String accessToken,
+    required String refreshToken,
+    DateTime? accessTokenExpiresAt,
+    DateTime? refreshTokenExpiresAt,
+    String? organizationId,
+    String? userJson,
+  }) async {
+    try {
+      await _storage.write(key: AppConstants.keyAuthToken, value: accessToken);
+      await _storage.write(key: AppConstants.keyRefreshToken, value: refreshToken);
+      if (accessTokenExpiresAt != null) {
+        await _storage.write(
+          key: AppConstants.keyAccessTokenExpiresAt,
+          value: accessTokenExpiresAt.toIso8601String(),
+        );
+      }
+      if (refreshTokenExpiresAt != null) {
+        await _storage.write(
+          key: AppConstants.keyRefreshTokenExpiresAt,
+          value: refreshTokenExpiresAt.toIso8601String(),
+        );
+      }
+      if (organizationId != null && organizationId.isNotEmpty) {
+        await _storage.write(key: AppConstants.keyCurrentOrganizationId, value: organizationId);
+      }
+      if (userJson != null && userJson.isNotEmpty) {
+        await _storage.write(key: AppConstants.keySessionUser, value: userJson);
+      }
+      AppLogger.info('Authentication session saved securely');
+    } catch (e) {
+      AppLogger.error('Failed to save session securely', e);
+    }
+  }
+
+  /// অ্যাক্সেস টোকেন মেয়াদোত্তীর্ণ হওয়ার তারিখ
+  Future<DateTime?> getAccessTokenExpiresAt() async {
+    try {
+      final str = await _storage.read(key: AppConstants.keyAccessTokenExpiresAt);
+      if (str == null || str.isEmpty) return null;
+      return DateTime.tryParse(str);
+    } catch (e) {
+      AppLogger.error('Failed to parse access token expiry', e);
+      return null;
+    }
+  }
+
+  /// রিফ্রেশ টোকেন মেয়াদোত্তীর্ণ হওয়ার তারিখ
+  Future<DateTime?> getRefreshTokenExpiresAt() async {
+    try {
+      final str = await _storage.read(key: AppConstants.keyRefreshTokenExpiresAt);
+      if (str == null || str.isEmpty) return null;
+      return DateTime.tryParse(str);
+    } catch (e) {
+      AppLogger.error('Failed to parse refresh token expiry', e);
+      return null;
+    }
+  }
+
+  /// সেশন ব্যবহারকারী JSON মেটাডাটা
+  Future<String?> getSessionUserJson() async {
+    try {
+      return await _storage.read(key: AppConstants.keySessionUser);
+    } catch (e) {
+      AppLogger.error('Failed to read session user JSON', e);
+      return null;
+    }
+  }
+
+  /// লগআউট বা সেশন রিসেট (সকল সংবেদনশীল ক্রেডেনশিয়াল মুছে ফেলা)
   Future<void> clearSession() async {
     try {
       await _storage.delete(key: AppConstants.keyAuthToken);
       await _storage.delete(key: AppConstants.keyRefreshToken);
+      await _storage.delete(key: AppConstants.keyAccessTokenExpiresAt);
+      await _storage.delete(key: AppConstants.keyRefreshTokenExpiresAt);
       await _storage.delete(key: AppConstants.keyCurrentOrganizationId);
+      await _storage.delete(key: AppConstants.keySessionUser);
       AppLogger.info('Secure session cleared successfully');
     } catch (e) {
       AppLogger.error('Failed to clear secure session', e);

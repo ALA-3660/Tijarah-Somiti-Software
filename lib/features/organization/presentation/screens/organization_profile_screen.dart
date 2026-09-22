@@ -461,14 +461,14 @@ class _OrganizationProfileScreenState extends State<OrganizationProfileScreen> {
                   org.logo!,
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => const Icon(
-                    Icons.account_balance,
+                    Icons.business,
                     color: AppColors.primary,
                     size: 32,
                   ),
                 ),
               )
             : const Icon(
-                Icons.account_balance_outlined,
+                Icons.apartment_outlined,
                 color: AppColors.primary,
                 size: 32,
               ),

@@ -8,6 +8,12 @@ import '../../app/theme/app_spacing.dart';
 import '../../app/theme/app_typography.dart';
 import '../../features/dashboard/presentation/screens/component_showcase_screen.dart';
 import '../../features/organization/presentation/screens/organization_profile_screen.dart';
+import '../../features/roles_permissions/presentation/screens/roles_permissions_screen.dart';
+import '../../features/user_management/presentation/screens/user_list_screen.dart';
+import '../../features/security_audit/presentation/screens/security_audit_screen.dart';
+import '../../features/security_audit/presentation/screens/session_security_screen.dart';
+import '../../features/member_management/presentation/screens/member_list_screen.dart';
+import '../../features/authentication/presentation/controllers/authentication_controller.dart';
 import '../../core/context/organization_context.dart';
 import '../widgets/app_breadcrumbs.dart';
 import '../widgets/app_navigation_sidebar.dart';
@@ -257,6 +263,79 @@ class _AppNavigationShellState extends State<AppNavigationShell> {
               );
             },
           ),
+          const SizedBox(width: 8),
+          // অথেনটিকেটেড ইউজার ও লগআউট বাটন
+          AnimatedBuilder(
+            animation: AuthenticationController.instance,
+            builder: (context, _) {
+              final authController = AuthenticationController.instance;
+              final user = authController.currentUser;
+              final userName = user?.name ?? 'অ্যাডমিন ইউজার';
+
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceVariantLight,
+                      borderRadius: AppRadius.radiusFull,
+                      border: Border.all(color: AppColors.borderLight),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const CircleAvatar(
+                          radius: 10,
+                          backgroundColor: AppColors.primary,
+                          child: Icon(Icons.person, size: 12, color: Colors.white),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          userName,
+                          style: AppTypography.caption(
+                            color: AppColors.textPrimaryLight,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  IconButton(
+                    icon: const Icon(Icons.logout_rounded, size: 18, color: AppColors.error),
+                    tooltip: 'লগআউট করুন',
+                    onPressed: () async {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('লগআউট নিশ্চিতকরণ'),
+                          content: const Text('আপনি কি নিশ্চিত যে বর্তমান সেশন থেকে লগআউট করতে চান?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(false),
+                              child: const Text('বাতিল'),
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+                              onPressed: () => Navigator.of(ctx).pop(true),
+                              child: const Text('লগআউট', style: TextStyle(color: Colors.white)),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirm == true) {
+                        await authController.logout();
+                        if (context.mounted) {
+                          Navigator.of(context).pushReplacementNamed(RouteNames.login);
+                        }
+                      }
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
         ],
       ),
     );
@@ -271,6 +350,31 @@ class _AppNavigationShellState extends State<AppNavigationShell> {
         _currentRoute == RouteNames.orgSecurity ||
         _currentRoute == '/organization-security/organization-info') {
       return const OrganizationProfileScreen();
+    }
+
+    if (_currentRoute == RouteNames.orgRoles) {
+      return const RolesPermissionsScreen();
+    }
+
+    if (_currentRoute == RouteNames.orgUsers) {
+      return const UserListScreen();
+    }
+
+    if (_currentRoute == RouteNames.orgLogs || _currentRoute == RouteNames.orgSecurityAudit) {
+      return const SecurityAuditScreen();
+    }
+
+    if (_currentRoute == RouteNames.orgSessions) {
+      return const SessionSecurityScreen();
+    }
+
+    if (_currentRoute == RouteNames.members ||
+        _currentRoute == RouteNames.memberList ||
+        _currentRoute == RouteNames.memberNew ||
+        _currentRoute == RouteNames.memberProfile ||
+        _selectedModule.id == 'members' ||
+        _currentRoute.startsWith('/members')) {
+      return const MemberListScreen();
     }
 
     final title = currentItem?.title ?? _selectedModule.title;

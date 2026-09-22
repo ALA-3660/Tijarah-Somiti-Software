@@ -42,7 +42,7 @@ class OrganizationRemoteDataSourceImpl implements OrganizationRemoteDataSource {
   Future<OrganizationModel> updateOrganization(OrganizationModel organization) async {
     final response = await _apiClient.patch(
       ApiEndpoints.organizationDetails(organization.id),
-      data: organization.toJson(),
+      body: organization.toJson(),
     );
     return OrganizationModel.fromJson(response as Map<String, dynamic>);
   }
@@ -51,7 +51,7 @@ class OrganizationRemoteDataSourceImpl implements OrganizationRemoteDataSource {
   Future<OrganizationModel> updateOrganizationStatus(String id, String status) async {
     final response = await _apiClient.patch(
       ApiEndpoints.organizationDetails(id),
-      data: {'status': status},
+      body: {'status': status},
     );
     return OrganizationModel.fromJson(response as Map<String, dynamic>);
   }

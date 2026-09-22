@@ -5,10 +5,12 @@
 class ApiEndpoints {
   ApiEndpoints._();
 
-  // Authentication
-  static const String login = '/auth/token/';
+  // Authentication (প্রমিত Django REST Framework / SimpleJWT)
+  static const String login = '/auth/login/';
+  static const String token = '/auth/token/';
   static const String refreshToken = '/auth/token/refresh/';
   static const String logout = '/auth/logout/';
+  static const String me = '/auth/me/';
   static const String userProfile = '/auth/profile/';
 
   // Organizations (সমিতি / প্রতিষ্ঠান)

@@ -18,6 +18,13 @@ class ApiClient {
   final SecureStorageService _secureStorage;
   final AppConfig _config;
 
+  /// সেন্ট্রালাইজড টোকেন রিফ্রেশ হ্যান্ডলার ও সেশন এক্সপায়ার্ড কলব্যাক
+  static Future<String?> Function()? onRefreshToken;
+  static void Function()? onSessionExpired;
+
+  /// একাধিক সমসাময়িক রিকোয়েস্ট থেকে রিফ্রেশ স্টর্ম প্রতিরোধের জন্য গ্লোবাল রিফ্রেশ লক
+  static Completer<String?>? _globalRefreshCompleter;
+
   ApiClient({
     http.Client? httpClient,
     SecureStorageService? secureStorage,
@@ -33,6 +40,7 @@ class ApiClient {
     Map<String, dynamic>? queryParams,
     dynamic body,
     Map<String, String>? customHeaders,
+    bool isRetry = false,
   }) async {
     final uri = _buildUri(endpoint, queryParams);
     final headers = await _buildHeaders(customHeaders);
@@ -75,6 +83,30 @@ class ApiClient {
           );
       }
 
+      // যদি 401 রেসপন্স আসে এবং এটি কোনো অথেনটিকেশন নিজস্ব কল না হয়
+      if (response.statusCode == 401 && !isRetry && !_isAuthEndpoint(endpoint)) {
+        AppLogger.warning('401 Unauthorized received on $endpoint. Attempting automatic token refresh...');
+        final refreshedToken = await _performTokenRefresh();
+        if (refreshedToken != null && refreshedToken.isNotEmpty) {
+          AppLogger.info('Token refresh succeeded. Retrying original request for $endpoint');
+          return request(
+            endpoint: endpoint,
+            method: method,
+            queryParams: queryParams,
+            body: body,
+            customHeaders: customHeaders,
+            isRetry: true,
+          );
+        } else {
+          AppLogger.error('Token refresh returned null/empty. Triggering session expired...');
+          onSessionExpired?.call();
+          throw const UnauthorizedException(
+            message: 'আপনার সেশন শেষ হয়েছে। অনুগ্রহ করে আবার লগইন করুন।',
+            statusCode: 401,
+          );
+        }
+      }
+
       return _handleResponse(response);
     } on SocketException catch (e) {
       AppLogger.error('Network Error: ${e.message}');
@@ -90,6 +122,38 @@ class ApiClient {
         message: 'অপ্রত্যাশিত নেটওয়ার্ক ত্রুটি দেখা দিয়েছে।',
         technicalDetails: e.toString(),
       );
+    }
+  }
+
+  /// এটি কি লগইন বা টোকেন রিফ্রেশ এন্ডপয়েন্ট? (এগুলোতে রিফ্রেশ লুপ যেন না হয়)
+  bool _isAuthEndpoint(String endpoint) {
+    return endpoint.contains('/auth/login') ||
+        endpoint.contains('/auth/token') ||
+        endpoint.contains('/auth/logout');
+  }
+
+  /// সেন্ট্রালাইজড রিফ্রেশ এক্সিকিউশন উইথ থ্রেড-সেফ ফিউচার লক
+  static Future<String?> _performTokenRefresh() async {
+    if (onRefreshToken == null) return null;
+
+    if (_globalRefreshCompleter != null) {
+      AppLogger.debug('Refresh in progress. Awaiting existing refresh completer...');
+      return _globalRefreshCompleter!.future;
+    }
+
+    _globalRefreshCompleter = Completer<String?>();
+    try {
+      final newToken = await onRefreshToken!();
+      _globalRefreshCompleter!.complete(newToken);
+      return newToken;
+    } catch (e) {
+      AppLogger.error('Global token refresh failed: $e');
+      if (_globalRefreshCompleter != null && !_globalRefreshCompleter!.isCompleted) {
+        _globalRefreshCompleter!.complete(null);
+      }
+      return null;
+    } finally {
+      _globalRefreshCompleter = null;
     }
   }
 

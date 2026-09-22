@@ -70,13 +70,13 @@ class _OrganizationEditScreenState extends State<OrganizationEditScreen> {
 
   @override
   void dispose() {
-    _nameController.dispose;
-    _shortNameController.dispose;
-    _phoneController.dispose;
-    _emailController.dispose;
-    _addressController.dispose;
-    _descriptionController.dispose;
-    _logoUrlController.dispose;
+    _nameController.dispose();
+    _shortNameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    _addressController.dispose();
+    _descriptionController.dispose();
+    _logoUrlController.dispose();
     super.dispose();
   }
 
@@ -458,7 +458,7 @@ class _OrganizationEditScreenState extends State<OrganizationEditScreen> {
                         ),
                       )
                     : const Icon(
-                        Icons.account_balance_outlined,
+                        Icons.apartment_outlined,
                         color: AppColors.primary,
                         size: 36,
                       ),

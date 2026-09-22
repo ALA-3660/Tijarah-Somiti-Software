@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/authorization/permission_keys.dart';
 import 'route_names.dart';
 
 /// NavigationItem: কেন্দ্রীভূত নেভিগেশন আইটেম ডেটা মডেল
@@ -10,6 +11,8 @@ class NavigationItem {
   final String route;
   final List<NavigationItem> children;
   final String? permissionKey;
+  final List<String>? requiredAnyPermissions;
+  final List<String>? requiredAllPermissions;
   final bool isVisible;
   final int sortOrder;
   final String? badgeText;
@@ -24,6 +27,8 @@ class NavigationItem {
     required this.route,
     this.children = const [],
     this.permissionKey,
+    this.requiredAnyPermissions,
+    this.requiredAllPermissions,
     this.isVisible = true,
     required this.sortOrder,
     this.badgeText,
@@ -96,6 +101,7 @@ class NavigationRegistry {
           route: RouteNames.orgUsers,
           sortOrder: 2,
           description: 'অপারেটর, অ্যাডমিন ও সংগ্রাহক ইউজার তালিকা',
+          permissionKey: PermissionKeys.userView,
         ),
         NavigationItem(
           id: 'org_roles',
@@ -105,6 +111,7 @@ class NavigationRegistry {
           route: RouteNames.orgRoles,
           sortOrder: 3,
           description: 'রোলভিত্তিক অ্যাক্সেস ও পারমিশন ম্যাট্রিক্স',
+          permissionKey: PermissionKeys.roleView,
         ),
         NavigationItem(
           id: 'org_login_sec',
@@ -123,6 +130,7 @@ class NavigationRegistry {
           route: RouteNames.orgSessions,
           sortOrder: 5,
           description: 'সক্রিয় লগইন সেশন ও ডিভাইস নিয়ন্ত্রণ',
+          permissionKey: PermissionKeys.sessionView,
         ),
         NavigationItem(
           id: 'org_logs',
@@ -132,6 +140,7 @@ class NavigationRegistry {
           route: RouteNames.orgLogs,
           sortOrder: 6,
           description: 'লগইন হিস্টোরি ও নিরাপত্তা অডিট ট্রেইল',
+          permissionKey: PermissionKeys.auditLogView,
         ),
       ],
     ),

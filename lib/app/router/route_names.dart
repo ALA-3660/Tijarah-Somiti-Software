@@ -22,6 +22,7 @@ class RouteNames {
   static const String orgLoginSecurity = '/organization-security/login-security';
   static const String orgSessions = '/organization-security/sessions';
   static const String orgLogs = '/organization-security/logs';
+  static const String orgSecurityAudit = '/organization-security/security-audit';
 
   // ৩. সদস্য ব্যবস্থাপনা
   static const String members = '/members';
