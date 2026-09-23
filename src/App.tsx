@@ -13,7 +13,14 @@ import {
   Compass,
   KeyRound,
   Users,
-  FileCheck
+  FileCheck,
+  Database,
+  FolderTree,
+  Wallet,
+  ShieldCheck,
+  Landmark,
+  FileSpreadsheet,
+  Receipt
 } from 'lucide-react';
 import { AndroidDeviceFrame } from './components/AndroidDeviceFrame';
 import { ArchitectureDiagram } from './components/ArchitectureDiagram';
@@ -27,6 +34,15 @@ import { AuthenticationManagementView } from './components/AuthenticationManagem
 import { MemberProfileManagementView } from './components/MemberProfileManagementView';
 import { MembershipApplicationManagementView } from './components/MembershipApplicationManagementView';
 import { MemberMasterDataManagementView } from './components/MemberMasterDataManagementView';
+import { MemberRegisterView } from './components/MemberRegisterView';
+import { MasterDataFoundationView } from './components/MasterDataFoundationView';
+import { HeadManagementView } from './components/HeadManagementView';
+import { FundManagementView } from './components/FundManagementView';
+import { MasterDataGovernanceView } from './components/MasterDataGovernanceView';
+import { AccountManagementView } from './components/AccountManagementView';
+import { TransactionCoreView } from './components/TransactionCoreView';
+import { IncomeManagementView } from './components/IncomeManagementView';
+import { TSSLogo, TSSBrandSpecimen, BRAND_CONFIG } from './branding';
 import { EnvironmentType, OrganizationContext, UiSimulatorState } from './types';
 
 export const DEMO_ORGANIZATION: OrganizationContext = {
@@ -102,7 +118,7 @@ const INITIAL_ORGS: OrganizationContext[] = [
 ];
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'member_master_data' | 'member_profile' | 'member_application' | 'authentication' | 'organization' | 'navigation' | 'simulator' | 'design_system' | 'architecture' | 'code' | 'rules' | 'tests'>('member_master_data');
+  const [activeTab, setActiveTab] = useState<'income_management' | 'financial_transaction_core' | 'account_management' | 'master_data_governance' | 'fund_management' | 'head_management' | 'master_data_foundation' | 'member_register' | 'member_master_data' | 'member_profile' | 'member_application' | 'authentication' | 'organization' | 'navigation' | 'simulator' | 'tss_branding' | 'design_system' | 'architecture' | 'code' | 'rules' | 'tests'>('income_management');
   const [environment, setEnvironment] = useState<EnvironmentType>('development');
   const [orgsList, setOrgsList] = useState<OrganizationContext[]>(INITIAL_ORGS);
   const [activeOrg, setActiveOrg] = useState<OrganizationContext>(DEMO_ORGANIZATION);
@@ -119,45 +135,147 @@ export default function App() {
       <header className="bg-white border-b border-slate-200/80 sticky top-0 z-40 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#0F5132] text-white flex items-center justify-center font-bold text-lg shadow-sm font-heading">
-              তি
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base font-bold text-slate-900 leading-tight font-heading">
-                  তিজারাহ সমিতি সফটওয়্যার
-                </h1>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 font-numeric">
-                  Phase 3 — Prompt 3.3 Application Workflow
-                </span>
-              </div>
+            <TSSLogo variant="compact" theme="light" size="md" showBangla={true} />
+            <div className="hidden md:flex items-center gap-2 border-l border-slate-200 pl-3">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 font-numeric">
+                Official Brand: TSS
+              </span>
               <p className="text-xs text-slate-500 font-normal font-body">
-                ইসলামি মূল্যবোধে সমিতি পরিচালনা ও হালাল ব্যবসার আধুনিক ব্যবস্থাপনা
+                {BRAND_CONFIG.tagline}
               </p>
             </div>
           </div>
 
-          {/* Quick Environment Selector */}
-          <div className="hidden sm:flex items-center gap-2 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-numeric">
-            <span className="text-[11px] font-semibold text-slate-500 px-2">পরিবেশ:</span>
-            {(['development', 'staging', 'production'] as EnvironmentType[]).map((env) => (
-              <button
-                key={env}
-                onClick={() => setEnvironment(env)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-semibold capitalize transition ${
-                  environment === env
-                    ? 'bg-white text-emerald-800 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                {env === 'development' ? 'Dev' : env === 'staging' ? 'Staging' : 'Prod'}
-              </button>
-            ))}
+          {/* Quick Environment & Active Org Selector */}
+          <div className="flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-1.5 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 text-xs">
+              <span className="text-[10px] uppercase font-bold text-emerald-800">অর্গানাইজেশন:</span>
+              <span className="font-bold text-emerald-950 font-heading">{activeOrg.shortName}</span>
+              {activeOrg.isDemo && (
+                <span className="px-1 py-0.2 bg-amber-200 text-amber-900 rounded font-mono text-[9px] font-bold">
+                  DEMO
+                </span>
+              )}
+            </div>
+
+            {/* Quick Environment Selector */}
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-numeric">
+              <span className="text-[11px] font-semibold text-slate-500 px-1.5 hidden sm:inline">পরিবেশ:</span>
+              {(['development', 'staging', 'production'] as EnvironmentType[]).map((env) => (
+                <button
+                  key={env}
+                  onClick={() => setEnvironment(env)}
+                  className={`px-2 py-1 rounded-lg text-xs font-semibold capitalize transition ${
+                    environment === env
+                      ? 'bg-white text-emerald-800 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  {env === 'development' ? 'Dev' : env === 'staging' ? 'Staging' : 'Prod'}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Tab Navigation */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex gap-1 sm:gap-2 overflow-x-auto text-xs border-t border-slate-100 font-numeric">
+          <button
+            onClick={() => setActiveTab('income_management')}
+            className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+              activeTab === 'income_management'
+                ? 'border-emerald-700 text-emerald-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Receipt className="w-4 h-4 text-emerald-700" />
+            <span>আয় ও প্রাপ্তি (Prompt 5.3)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('financial_transaction_core')}
+            className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+              activeTab === 'financial_transaction_core'
+                ? 'border-emerald-700 text-emerald-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <FileSpreadsheet className="w-4 h-4 text-emerald-700" />
+            <span>লেনদেন কোর ও অনুমোদন (Prompt 5.2)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('account_management')}
+            className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+              activeTab === 'account_management'
+                ? 'border-emerald-700 text-emerald-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Landmark className="w-4 h-4 text-emerald-700" />
+            <span>হিসাব ও আর্থিক অবস্থান (Prompt 5.1)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('master_data_governance')}
+            className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+              activeTab === 'master_data_governance'
+                ? 'border-emerald-700 text-emerald-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <ShieldCheck className="w-4 h-4 text-emerald-700" />
+            <span>মাস্টার ডাটা গভর্ন্যান্স ও অডিট (Phase 4.5)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('fund_management')}
+            className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+              activeTab === 'fund_management'
+                ? 'border-emerald-700 text-emerald-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Wallet className="w-4 h-4 text-emerald-700" />
+            <span>তহবিল ব্যবস্থাপনা (Prompt 4.4)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('head_management')}
+            className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+              activeTab === 'head_management'
+                ? 'border-emerald-700 text-emerald-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <FolderTree className="w-4 h-4 text-emerald-700" />
+            <span>খাত শ্রেণি ও ব্যবস্থাপনা (Prompt 4.3)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('master_data_foundation')}
+            className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+              activeTab === 'master_data_foundation'
+                ? 'border-emerald-700 text-emerald-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Database className="w-4 h-4 text-emerald-700" />
+            <span>মাস্টার ডাটা আর্কিটেকচার (Prompt 4.1)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('member_register')}
+            className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+              activeTab === 'member_register'
+                ? 'border-emerald-700 text-emerald-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Users className="w-4 h-4 text-emerald-700" />
+            <span>সদস্য রেজিস্টার ও অনুসন্ধান (Prompt 3.6)</span>
+          </button>
+
           <button
             onClick={() => setActiveTab('member_master_data')}
             className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
@@ -243,6 +361,18 @@ export default function App() {
           </button>
 
           <button
+            onClick={() => setActiveTab('tss_branding')}
+            className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+              activeTab === 'tss_branding'
+                ? 'border-emerald-700 text-emerald-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Sparkles className="w-4 h-4 text-amber-600" />
+            <span>টিএসএস ব্র্যান্ডিং ও লোগো (TSS Brand)</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('design_system')}
             className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
               activeTab === 'design_system'
@@ -306,6 +436,84 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6">
+        {activeTab === 'income_management' && (
+          <IncomeManagementView currentOrg={activeOrg} />
+        )}
+        {activeTab === 'financial_transaction_core' && (
+          <TransactionCoreView currentOrg={activeOrg} />
+        )}
+        {activeTab === 'account_management' && (
+          <AccountManagementView
+            currentOrg={activeOrg}
+            onOrgChange={(orgId) => {
+              const found = orgsList.find((o) => o.id === orgId);
+              if (found) {
+                setActiveOrg(found);
+              }
+            }}
+          />
+        )}
+        {activeTab === 'master_data_governance' && (
+          <MasterDataGovernanceView
+            organization={activeOrg}
+            onRefreshOrgData={() => {
+              // Refresh callback
+            }}
+          />
+        )}
+        {activeTab === 'fund_management' && (
+          <FundManagementView
+            currentOrg={activeOrg}
+            onOrgChange={(orgId) => {
+              const found = orgsList.find((o) => o.id === orgId);
+              if (found) {
+                setActiveOrg(found);
+              }
+            }}
+          />
+        )}
+        {activeTab === 'head_management' && (
+          <HeadManagementView
+            currentOrg={activeOrg}
+            onOrgChange={(orgId) => {
+              const found = orgsList.find((o) => o.id === orgId);
+              if (found) {
+                setActiveOrg(found);
+              }
+            }}
+          />
+        )}
+        {activeTab === 'master_data_foundation' && (
+          <MasterDataFoundationView
+            currentOrg={activeOrg}
+            onOrgChange={(orgId) => {
+              const found = orgsList.find((o) => o.id === orgId);
+              if (found) {
+                setActiveOrg(found);
+              }
+            }}
+          />
+        )}
+        {activeTab === 'member_register' && (
+          <MemberRegisterView
+            currentOrg={activeOrg}
+            onSelectMemberForProfile={() => {
+              setActiveTab('member_profile');
+            }}
+            onSyncOrganization={(orgId, orgName) => {
+              const found = orgsList.find((o) => o.id === orgId);
+              if (found) {
+                setActiveOrg(found);
+              } else {
+                setActiveOrg({
+                  ...activeOrg,
+                  id: orgId,
+                  name: orgName,
+                });
+              }
+            }}
+          />
+        )}
         {activeTab === 'member_master_data' && (
           <MemberMasterDataManagementView
             currentOrg={activeOrg}
@@ -561,6 +769,7 @@ export default function App() {
           </div>
         )}
 
+        {activeTab === 'tss_branding' && <TSSBrandSpecimen currentOrg={activeOrg} />}
         {activeTab === 'design_system' && <DesignSystemSpecimen />}
         {activeTab === 'architecture' && <ArchitectureDiagram />}
         {activeTab === 'code' && <CodeViewer />}
@@ -570,7 +779,7 @@ export default function App() {
 
       {/* Footer */}
       <footer className="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-500 font-body">
-        <p>তিজারাহ সমিতি সফটওয়্যার — ইসলামি মূল্যবোধে সমিতি পরিচালনা ও হালাল ব্যবসার আধুনিক ব্যবস্থাপনা | Prompt 1.3 Complete & Verified</p>
+        <p>Powered by <strong>{BRAND_CONFIG.shortName}</strong> ({BRAND_CONFIG.fullName}) — {BRAND_CONFIG.banglaName} | {BRAND_CONFIG.tagline}</p>
       </footer>
     </div>
   );

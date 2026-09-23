@@ -182,32 +182,91 @@ flutter run -t lib/main.dart
     * Full integration with Auth (`loginSuccess`, `loginFailed`, `logout`, `tokenRefresh`) and User Management (`privilegeEscalationBlocked`)
     * Responsive Master-Detail Security Audit Screen (`/organization-security/security-audit` & `/organization-security/logs`) and Session Management Screen (`/organization-security/sessions`)
     * Complete automated Unit, Repository, Widget, and Integration tests (Tests A through P)
-* **Phase 3 — Member Management (Prompts 3.1, 3.2, 3.3 COMPLETE & LOCKED)**
+* **Phase 3 — Member Management (Prompts 3.1 - 3.6 COMPLETE & LOCKED)**
   * Prompt 3.1 — Member Management Foundation (COMPLETE → LOCKED)
-    * Member ≠ User domain segregation enforced
-    * Sequential and unique Member Code generation (`MEM-000001`...)
-    * Multi-tenant Organization Isolation (`organizationId` scoped)
-    * Lifecycle Status: Active, Inactive, Suspended, Archived (Strict state transitions)
-    * No Hard Delete policy enforced
-    * Initial test suite Tests A through N passed
   * Prompt 3.2 — Member Profile & Contact/Family Information (COMPLETE → LOCKED)
-    * Rich Member Profile presentation & categorization
-    * NID Privacy Protection (Masked `********1234`, permission-based reveal)
-    * Contact, Address (Current & Permanent), Family & Emergency Contact architecture
-    * Dynamic Age Calculation & Profile Completeness Meter
-    * A4 Printable Official Membership Profile View
-    * Test suite Tests A through O passed
-  * Prompt 3.3 — Membership Application, Verification & Approval Workflow (COMPLETE → READY TO LOCK)
-    * Application ≠ Member Architecture (`MembershipApplication ≠ Member`)
-    * Zero Financial Impact: Pending applications create no share, savings, loan, chanda, or ledger impacts
-    * Sequential Application Code format (`APP-000001` to `APP-999999`)
-    * Full State Machine: Draft → Submitted → UnderReview → CorrectionRequired/Resubmitted → Approved/Rejected/Withdrawn
-    * Separation of Duties: Creator cannot approve (`creatorUserId != approverUserId`)
-    * Double Approval & Concurrency Protection
-    * Duplicate Member & Duplicate Active Application Detection
-    * 6-point Verification Checklist with Reviewer audit trail
-    * NID Privacy (Masked, permission-gated, no raw NID in logs or URLs)
-    * A4 Official Application Print View
-    * Full Test Suite Coverage: Tests A through U passed
-* **পরবর্তী ধাপ:** Phase 4 — Share Capital & Member Equity Management প্রস্তুতি।
+  * Prompt 3.3 — Membership Application, Verification & Approval Workflow (COMPLETE → LOCKED)
+  * Prompt 3.4 — Member Classification, Relations & Configurable Master Data (COMPLETE → LOCKED)
+  * Prompt 3.5 — Member Documents, Photos & Attachment Management (COMPLETE → LOCKED)
+  * Prompt 3.6 — Member Register, Search, 360 View, Duplicate Engine & Final Integration (COMPLETE → LOCKED)
+* **Phase 4.1 — Master Data Architecture Foundation (COMPLETE → LOCKED)**
+  * Domain Separation: `Head ≠ Fund ≠ Account` (খাত ≠ তহবিল ≠ হিসাব)
+  * Generic Extensible Architecture: `MasterDataDefinition` & `MasterDataItem`
+  * System-Defined vs. Organization-Custom separation & code immutability
+  * Stable Code Policy: organization-scoped uniqueness, whitespace normalization & zero duplicate codes
+  * Lifecycle State Machine: Active → Inactive → Archived (Strictly No Hard Delete)
+  * Historical Integrity: Renaming display names preserves stable code/ID references
+  * Organization Isolation: Strict multi-tenant boundaries (Khurushkul vs Al-Falah)
+  * RBAC & Audit: `master_data.view/create/edit/status_change/export/print` & Immutable Audit Logs
+  * UI: Responsive Bengali Register, Search, Multi-Filter, UTF-8 CSV Export & Official A4 Print Layout
+* **Phase 4.2 — Head Management Foundation (COMPLETE → LOCKED)**
+  * Domain Separation: Head (কেন - কারণ/শ্রেণি) ≠ Fund (কোন উদ্দেশ্যে) ≠ Account (কোথায়) — No Financial Transaction
+  * Head Domain Model: `id`, `organizationId`, `headCode`, `name`, `description`, `headType` (`income` | `expense`), `parentId`, `level` (1=Main, 2=Sub), `isSystemDefined`, `status`, `sortOrder`
+  * Strict 2-Level Hierarchy: Main Head (level 1, parentId=null) → Sub Head (level 2, parentId=Main Head ID)
+  * Hierarchy Rules: Type Consistency (Income Sub Head under Income Main, Expense Sub Head under Expense Main), No Cross-Org parent, No Circular/Self parent
+  * Safe Deactivation Policy: Blocking deactivation/archival of Main Heads with active Sub Heads
+  * Stable Code Policy: Immutable code after creation, organization-scoped uniqueness, case-insensitive duplicate prevention
+  * UI/UX: Bengali-first Register, Interactive Tree View, Create/Edit Dialogs, Lifecycle Status Modal, UTF-8 CSV & A4 Print
+  * Multi-tenant Isolation: Scoped to `organizationId`, complete data and parent isolation between organizations
+  * RBAC & Security: `head.view`, `head.create`, `head.edit`, `head.status_change`, `head.export`, `head.print` (403 Forbidden feedback)
+  * Audit Trail: Immutable lifecycle logging (`HEAD_CREATED`, `HEAD_UPDATED`, `HEAD_ACTIVATED`, `HEAD_DEACTIVATED`, `HEAD_ARCHIVED`)
+* **Phase 4.3 — Income & Expense Head Classification & Integration (COMPLETE → LOCKED)**
+  * Income & Expense Dual Classification: Strict immutability of `headType` (`income` | `expense`) post creation (No Income ↔ Expense conversion)
+  * Parent-Child Type Integrity: Sub Heads restricted strictly to same-type Main Heads (`Income Main → Income Sub`, `Expense Main → Expense Sub`)
+  * Unicode NFC Normalized Duplicate Engine: `normalizeText` preventing duplicate head names across whitespace & Unicode variants
+  * Multi-view Integration: Integrated Register (All, Income, Expense views), Collapsible Hierarchical Tree View, Immutable Audit Log Timeline, and Domain Guide
+  * Historical Data Integrity: Immutable Code, ID, Type and Organization references with Zero Hard Delete governance
+  * Security & Isolation: Complete multi-tenant scoping, cross-organization ID tampering blocked, RBAC matrix enforced
+* **Phase 4.4 — Fund Management Foundation (COMPLETE → LOCKED)**
+  * Domain Architecture: `Fund` flat dimension entity (`Head ≠ Fund ≠ Account` preserved). No sub-funds or hierarchy.
+  * Standard Fund Types: `general` (সাধারণ), `administrative` (প্রশাসনিক), `share` (শেয়ার মূলধন), `project` (প্রকল্প), `custom` (কাস্টম).
+  * Scope Discipline: Completely free of prohibited religious funds (Zakat, Waqf, Sadaqa, Fitra, Emergency funds hardcoding omitted). Custom funds available per society needs.
+  * Auto Code Generator & Immutability: Auto-generated sequential collision-free `FND-001`, `FND-002`... immutable post creation.
+  * Zero Hard-Delete & Controlled Lifecycle: `Active ↔ Inactive → Archived` state machine with terminal archived state.
+  * Duplicate Prevention Engine: Unicode NFC normalization (`normalizeText`) preventing duplicate names under same fund type within tenant.
+  * Responsive Bengali UI: Fund Register with search, multi-filter (Type, Status, Origin), sorting, pagination, Detail 360 modal, UTF-8 CSV export & A4 print layout.
+  * Multi-Tenant Isolation & RBAC: Organization context scoping (`X-Organization-Id`), simulated role switcher (Admin, Manager, Accountant, Viewer), and append-only immutable audit trail.
+* **Phase 4.5 — Master Data Governance, Change History & Audit Foundation (COMPLETE → LOCKED)**
+  * Reusable Master Data Governance Architecture: Centralized governance framework applying across all financial/master dimensions (Head, Fund, Member Master Data).
+  * Strict Financial Dimension Separation: `Head (কেন)` ≠ `Fund (কোন উদ্দেশ্য/শ্রেণি)` ≠ `Account (কোথায়)` strictly preserved.
+  * Immutable Identity Protection: Domain-level rejection of modifications to `id`, `organizationId`, stable codes (`headCode`, `fundCode`), `createdAt` and `createdBy`.
+  * Append-Only Change History: Immutable `MasterDataChangeHistoryRecord` storing `beforeState`, `afterState`, `changedFields`, `reason`, `effectiveFrom`, and actor metadata.
+  * Mandatory Audit Reason: Enforced non-empty change reasons for all sensitive actions (Update, Activate, Deactivate, Archive, Bulk Operations).
+  * Safe Bulk Operations: Safe multi-item state transitions (Bulk Activate, Bulk Deactivate, Bulk Archive) with per-item validation, partial failure handling, and zero hard deletes.
+  * Centralized Governance UI: Governance Summary Dashboard (NO financial balances), Audit Register with Bengali Unicode search, multi-dimension filter, Before/After Diff viewer, UTF-8 CSV export, and A4 print layout.
+  * Multi-Tenant Isolation & RBAC: `X-Organization-Id` tenant boundary enforcement and RBAC matrix (`master_data.governance.view/history.view/change/bulk_change/export/print`) with 403 Forbidden feedback.
+* **Phase 4.6 — Master Data & Head Management — Final Integration & Verification (COMPLETE → LOCKED)**
+  * Cohesive Domain Integration: End-to-end integration of Head Management, Fund Management, and Master Data Governance.
+  * Comprehensive Security & Multi-Tenant Scoping: Rigorous tenant isolation (`X-Organization-Id`) and RBAC matrix.
+* **Phase 5.0 — TSS Brand Identity, Logo & Application-Wide Branding (COMPLETE → LOCKED)**
+  * Official Branding: TSS (Tijarah Samity Software / তিজারাহ সমিতি সফটওয়্যার)
+  * Identity Hierarchy: Software Brand (TSS) vs Organization Name separation
+  * Assets & Config: Centralized branding configuration, SVG logo variants, A4 Report Headers/Footers, Favicon and HTML metadata.
+* **Phase 5.1 — Account Management Foundation (COMPLETE → LOCKED)**
+  * Domain Architecture: `Account` financial holding location entity (`Head ≠ Fund ≠ Account` preserved).
+  * Account Types: `cash` (নগদ/ক্যাশ বাক্স) এবং `bank` (ব্যাংক অ্যাকাউন্ট).
+  * Authoritative Lifecycle: `Active ↔ Inactive → Archived` with terminal archival protection & mandatory audit reasons.
+  * Sensitive Data Security: Masked banking numbers (`******4589`), audited admin reveal flow (`ACCOUNT_SENSITIVE_REVEALED`), masked CSV export and A4 print view.
+  * Fund Association Foundation: Many-to-Many association (`associatedFundIds`) strictly organization-scoped with zero cross-tenant leakage.
+  * Shariah Boundary: Purely informational indicator / review metadata; TSS is NOT a Fatwa Engine or Halal/Haram Decision Engine.
+  * Zero Financial Scope Leakage: Zero balances, ledgers, vouchers, transactions, or interest calculation engines.
+  * Governance & Zero Hard Delete: 100% append-only audit trail and zero hard deletes.
+* **Phase 5.2 — Financial Transaction Core (COMPLETE → LOCKED)**
+  * Core Financial Backbone: Generic `FinancialTransaction` entity with positive numeric/decimal precision.
+  * 4-Dimensional Accounting Architecture: `Head (কেন)` ≠ `Fund (উদ্দেশ্য/শ্রেণি)` ≠ `Account (কোথায়)` ≠ `Transaction (ঘটনা)` complete separation.
+  * Authoritative Status Lifecycle: `DRAFT ➔ SUBMITTED ➔ APPROVED / REJECTED` with controlled resubmission (`REJECTED ➔ DRAFT ➔ SUBMITTED`).
+  * Separation of Duties: Creator cannot approve own transaction (`createdBy !== approvedBy` enforced at domain and API levels with HTTP 403 response).
+  * Official Balance Rule: Pending/Draft/Rejected transactions have 0.00 financial balance impact; only `APPROVED` transactions are eligible for the future Phase 5.7 Official Ledger.
+  * Master Data Integrity: Cross-tenant master data references strictly blocked; archived accounts/funds/heads excluded from new transactions.
+  * Concurrency & Idempotency: Optimistic locking token (`version`) and duplicate state transition prevention.
+* **Phase 5.3 — Income Management (COMPLETE → READY TO LOCK)**
+  * Unified Single Dynamic Income Entry: All 12 income types processed through a single configuration-driven dynamic form engine.
+  * 12 Authoritative Income Types: Monthly fee, annual fee, admission + passbook, administrative fee, one-time fee, other fee, product sales, rental, other business income, asset sales, general donations, and other general receipts.
+  * Bengali Currency Words Engine: Reactive `numberToBengaliWords` (কথায়: ... টাকা মাত্র) converter.
+  * Strict Financial Dimension Separation: `Head (কেন)` ≠ `Fund (উদ্দেশ্য/শ্রেণি)` ≠ `Account (কোথায়)` ≠ `Payment Method (কীভাবে)`.
+  * Administrative Expense Fund Lock: Hardcoded automatic locking of `প্রশাসনিক খরচের তহবিল` for Admission, Passbook & Annual Admin fees.
+  * Separation of Duties & Immutability: `createdBy !== approvedBy` strictly enforced; zero edit/hard delete on `APPROVED` entries.
+  * POS Thermal Receipt Engine: Official TSS-branded POS print simulation with full audit details and Bengali currency words.
+* **পরবর্তী ধাপ:** Phase 5.4 — Expense Management (Do not start until Phase 5.3 is locked)।
+
 

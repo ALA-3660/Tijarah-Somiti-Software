@@ -33,6 +33,7 @@ import {
 
 import { OrganizationManagementView } from './OrganizationManagementView';
 import { OrganizationContext } from '../types';
+import { TSSLogo } from '../branding';
 
 interface SubRoute {
   id: string;
@@ -449,17 +450,11 @@ export const NavigationExplorer: React.FC<NavigationExplorerProps> = ({
                   <Menu className="w-4 h-4" />
                 </button>
               )}
-              <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center font-bold text-sm">
-                তি
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-white leading-tight font-heading">
-                  তিজারাহ সমিতি সফটওয়্যার
-                </h4>
-                <p className="text-[10px] text-emerald-100/80 font-body">
-                  ইসলামি মূল্যবোধে সমিতি পরিচালনা ও হালাল ব্যবসার আধুনিক ব্যবস্থাপনা
-                </p>
-              </div>
+              {viewportMode === 'mobile' ? (
+                <TSSLogo variant="icon" theme="emerald" size="sm" />
+              ) : (
+                <TSSLogo variant="compact" theme="emerald" size="sm" showBangla={true} />
+              )}
             </div>
 
             <div className="flex items-center gap-2">

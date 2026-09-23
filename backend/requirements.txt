@@ -1,0 +1,17 @@
+# TSS (Tijarah Samity Software) — Django Backend Dependencies
+# Python Compatibility: >=3.10, <=3.13
+
+Django>=5.0,<5.2
+djangorestframework>=3.15.0,<3.16.0
+django-cors-headers>=4.3.1,<4.5.0
+psycopg[binary]>=3.1.18,<3.3.0
+python-dotenv>=1.0.1,<1.1.0
+djangorestframework-simplejwt>=5.3.1,<5.4.0
+
+# Optional Production Utilities
+gunicorn>=21.2.0,<23.0.0
+whitenoise>=6.6.0,<6.8.0
+
+# Testing & Quality
+pytest>=8.0.0,<8.4.0
+pytest-django>=4.8.0,<4.10.0

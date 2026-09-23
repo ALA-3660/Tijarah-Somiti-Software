@@ -1,6 +1,7 @@
 {
   "name": "তিজারাহ সমিতি সফটওয়্যার",
-  "description": "ইসলামি মূল্যবোধে সমিতি পরিচালনা ও হালাল ব্যবসার আধুনিক ব্যবস্থাপনা — Phase 3: Member Classification, Relations & Master Data",
+  "description": "TSS (Tijarah Samity Software) — ইসলামি মূল্যবোধে সমিতি পরিচালনা ও হালাল ব্যবসার আধুনিক ব্যবস্থাপনা",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
+

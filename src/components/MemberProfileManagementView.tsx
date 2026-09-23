@@ -60,7 +60,7 @@ interface MemberProfileManagementViewProps {
 }
 
 // Initial Mock Seed for Khurushkul and Al-Falah to test Organization Isolation
-const SEED_MEMBERS: Record<string, MemberType[]> = {
+export const SEED_MEMBERS: Record<string, MemberType[]> = {
   'demo-org-khurushkul': [
     {
       id: 'mem-001',

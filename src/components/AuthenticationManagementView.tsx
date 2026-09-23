@@ -28,6 +28,7 @@ import {
   AuthenticationStatusType,
   OrganizationContext
 } from '../types';
+import { TSSLogo } from '../branding';
 
 interface AuthenticationManagementViewProps {
   currentOrg: OrganizationContext;
@@ -324,16 +325,8 @@ export const AuthenticationManagementView: React.FC<AuthenticationManagementView
           <div className="lg:col-span-6 bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm">
             <div className="max-w-md mx-auto space-y-6">
               {/* হেডার ও ব্র্যান্ডিং */}
-              <div className="text-center space-y-2">
-                <div className="w-14 h-14 mx-auto rounded-2xl bg-emerald-700/10 border border-emerald-700/20 flex items-center justify-center text-emerald-800 shadow-sm">
-                  <Building2 className="w-7 h-7" />
-                </div>
-                <h2 className="text-xl font-bold text-emerald-900 font-solaiman">
-                  তিজারাহ সমিতি সফটওয়্যার
-                </h2>
-                <p className="text-xs text-slate-500 font-solaiman">
-                  ইসলামি মূল্যবোধে সমিতি পরিচালনা ও হালাল ব্যবসার আধুনিক ব্যবস্থাপনা
-                </p>
+              <div className="flex flex-col items-center justify-center space-y-2 text-center pb-2">
+                <TSSLogo variant="full" theme="light" size="lg" showTagline={true} />
               </div>
 
               {/* সেশন এক্সপায়ার / অফলাইন / এরর ব্যানার */}

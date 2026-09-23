@@ -16,6 +16,7 @@ import {
   Coins
 } from 'lucide-react';
 import { EnvironmentType, OrganizationContext, UiSimulatorState } from '../types';
+import { TSSLogo } from '../branding';
 
 interface AndroidDeviceFrameProps {
   environment: EnvironmentType;
@@ -68,17 +69,10 @@ export const AndroidDeviceFrame: React.FC<AndroidDeviceFrameProps> = ({
             </div>
           </div>
 
-          {/* Flutter AppBar: Tijarah Samity Brand Header */}
-          <div className="bg-[#0F5132] text-white px-4 pt-2 pb-3.5 shadow-md z-10">
+          {/* Flutter AppBar: TSS Brand Header */}
+          <div className="bg-[#0F5132] text-white px-4 pt-2.5 pb-3.5 shadow-md z-10">
             <div className="flex items-start justify-between">
-              <div>
-                <h1 className="text-base font-bold tracking-tight text-white flex items-center gap-1.5 font-heading">
-                  তিজারাহ সমিতি সফটওয়্যার
-                </h1>
-                <p className="text-[10px] text-emerald-100/90 font-normal leading-tight mt-0.5 font-body">
-                  ইসলামি মূল্যবোধে সমিতি পরিচালনা ও হালাল ব্যবসার আধুনিক ব্যবস্থাপনা
-                </p>
-              </div>
+              <TSSLogo variant="compact" theme="emerald" size="sm" showBangla={true} />
 
               {/* Environment Chip */}
               <button
