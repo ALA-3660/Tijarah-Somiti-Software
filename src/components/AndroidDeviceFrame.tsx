@@ -51,7 +51,7 @@ export const AndroidDeviceFrame: React.FC<AndroidDeviceFrameProps> = ({
       </div>
 
       {/* Android Device Outer Chassis */}
-      <div className="relative w-[380px] h-[780px] bg-slate-900 rounded-[44px] p-3 shadow-2xl border-4 border-slate-700/60 ring-1 ring-black/40 flex flex-col overflow-hidden">
+      <div className="relative w-full max-w-[380px] h-[780px] max-h-[85vh] bg-slate-900 rounded-[40px] sm:rounded-[44px] p-2.5 sm:p-3 shadow-2xl border-4 border-slate-700/60 ring-1 ring-black/40 flex flex-col overflow-hidden">
         
         {/* Device Punch Hole Camera */}
         <div className="absolute top-5 left-1/2 -translate-x-1/2 w-4 h-4 bg-black rounded-full z-30 border border-slate-800"></div>

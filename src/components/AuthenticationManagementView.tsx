@@ -326,7 +326,7 @@ export const AuthenticationManagementView: React.FC<AuthenticationManagementView
             <div className="max-w-md mx-auto space-y-6">
               {/* হেডার ও ব্র্যান্ডিং */}
               <div className="flex flex-col items-center justify-center space-y-2 text-center pb-2">
-                <TSSLogo variant="full" theme="light" size="lg" showTagline={true} />
+                <TSSLogo variant="stacked" theme="light" size="md" showTagline={true} showBangla={true} />
               </div>
 
               {/* সেশন এক্সপায়ার / অফলাইন / এরর ব্যানার */}

@@ -841,7 +841,7 @@ export interface AccountFilterCriteria {
 // ============================================================================
 
 export type TransactionType = 'INCOME' | 'EXPENSE' | 'TRANSFER';
-export type TransactionStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED';
+export type TransactionStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'POSTED' | 'REJECTED';
 
 export interface FinancialTransaction {
   id: string; // Immutable UUID
@@ -1063,6 +1063,11 @@ export interface IncomeEntry {
   rejectedByName?: string;
   rejectedAt?: string;
   rejectionReason?: string;
+  postedBy?: string;
+  postedByName?: string;
+  postedAt?: string;
+  financialTransactionId?: string;
+  isFinancialPosted?: boolean;
 
   // Concurrency & Timestamps
   version: number;
@@ -1099,10 +1104,892 @@ export type AccountEntity = Account;
 export type FundEntity = Fund;
 export type HeadEntity = Head;
 
+// ============================================================================
+// Phase 5.4 — Expense Management & Payment Voucher Architecture
+// Scope: 7 Locked General Expense Types, Payment Vouchers, Maker-Checker,
+// Immutable Approved State, POS Print, and Strict Tenant Isolation.
+// ============================================================================
 
+export type ExpenseTypeCode =
+  | 'administrative_expense'
+  | 'general_operational_expense'
+  | 'maintenance_repair_expense'
+  | 'professional_service_expense'
+  | 'publicity_publication_communication_expense'
+  | 'social_institutional_activity_expense'
+  | 'other_general_expense';
 
+export type ExpensePartyType = 'member' | 'external_party' | 'organization' | 'other_approved';
 
+export type ExpenseAuditEventType =
+  | 'EXPENSE_CREATED'
+  | 'EXPENSE_UPDATED'
+  | 'EXPENSE_SUBMITTED'
+  | 'EXPENSE_APPROVED'
+  | 'EXPENSE_REJECTED'
+  | 'EXPENSE_REOPENED'
+  | 'EXPENSE_POS_PRINTED'
+  | 'EXPENSE_VOUCHER_PRINTED'
+  | 'EXPENSE_SENSITIVE_VIEWED';
 
+export type ExpensePermissionKey =
+  | 'finance.expense.view'
+  | 'finance.expense.create'
+  | 'finance.expense.edit'
+  | 'finance.expense.submit'
+  | 'finance.expense.approve'
+  | 'finance.expense.reject'
+  | 'finance.expense.reopen'
+  | 'finance.expense.print'
+  | 'finance.expense.voucher_print';
+
+export interface ExpenseAuditEvent {
+  id: string;
+  expenseId: string;
+  eventType: ExpenseAuditEventType;
+  actorId: string;
+  actorName: string;
+  timestamp: string; // ISO 8601
+  notes?: string;
+  details?: Record<string, any>;
+}
+
+export interface SupportingDocumentMeta {
+  id: string;
+  name: string;
+  type: string;
+  referenceNumber?: string;
+  status: 'attached' | 'pending' | 'verified';
+  attachedAt: string;
+}
+
+export interface ExpenseEntry {
+  // Identity & Multi-Tenant Boundary
+  id: string; // EXP-UUID
+  organizationId: string;
+  expenseCode: string; // e.g. "EXP-2026-000101"
+  voucherNumber: string; // e.g. "PV-2026-000101" (Generated upon approval / distinct from expense ID)
+  transactionCode: string; // e.g. "TRX-2026-000201" (Financial posting identifier)
+  financialTransactionId?: string; // Unique financial ledger reference (Idempotency Key)
+  isFinancialPosted?: boolean;
+
+  // Classification & Domain Scoping
+  sourceDomain: 'GENERAL_FINANCE'; // Must always be GENERAL_FINANCE for general expense
+  sourceType: string; // 'general_operational' | 'voucher' | 'office'
+  sourceId?: string;
+  expenseTypeCode: ExpenseTypeCode;
+  expenseHeadId: string; // Foreign Key -> Master Data Head (Must be EXP-*)
+
+  // Financial Dimensions (Head ≠ Fund ≠ Account)
+  fundId: string; // Foreign Key -> Master Data Fund
+  accountId: string; // Foreign Key -> Account (Where money was disbursed from)
+  amount: number; // Numeric / Positive decimal
+  amountInWordsBn: string; // System generated Bengali text
+  expenseDate: string; // YYYY-MM-DD
+  paymentMethod: PaymentMethodType;
+  paymentMethodDetails?: string;
+
+  // Payee Information
+  partyType: ExpensePartyType;
+  partyId?: string; // Optional member or vendor ID
+  payeeName: string; // Name of person or vendor receiving payment
+
+  // Reference & Bill Numbers
+  billNumber?: string; // Vendor invoice / Memo / Cash memo number
+  referenceNumber?: string; // Internal tracking / sanction file number
+  externalReference?: string; // Cheque number / transaction transaction ID
+
+  // Supporting Information & Notes
+  description: string;
+  supportingDocuments: SupportingDocumentMeta[];
+  notes?: string;
+
+  // Lifecycle & Approval Workflow (Maker-Checker Enforced)
+  status: TransactionStatus; // 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED'
+  createdBy: string;
+  createdByName?: string;
+  createdAt: string;
+  submittedBy?: string;
+  submittedByName?: string;
+  submittedAt?: string;
+  approvedBy?: string; // Must NOT equal createdBy (Separation of Duties)
+  approvedByName?: string;
+  approvedAt?: string;
+  rejectedBy?: string;
+  rejectedByName?: string;
+  rejectedAt?: string;
+  rejectionReason?: string;
+  postedBy?: string;
+  postedByName?: string;
+  postedAt?: string;
+
+  // Concurrency & Immutability Token
+  version: number;
+  updatedAt: string;
+
+  // Append-only Audit History
+  auditHistory: ExpenseAuditEvent[];
+}
+
+export interface ExpenseFilterCriteria {
+  searchQuery?: string;
+  expenseTypeCode?: ExpenseTypeCode | 'all';
+  status?: TransactionStatus | 'all';
+  accountId?: string | 'all';
+  fundId?: string | 'all';
+  expenseHeadId?: string | 'all';
+  dateFrom?: string;
+  dateTo?: string;
+  partyType?: ExpensePartyType | 'all';
+  paymentMethod?: PaymentMethodType | 'all';
+  minAmount?: number;
+  maxAmount?: number;
+}
+
+export interface ExpenseSummaryMetrics {
+  totalCount: number;
+  draftCount: number;
+  submittedCount: number;
+  approvedCount: number;
+  rejectedCount: number;
+  totalApprovedAmount: number;
+  todayApprovedAmount: number;
+  administrativeExpenseAmount: number;
+  operationalExpenseAmount: number;
+}
+
+// ============================================================================
+// PHASE 5.5: TRANSFER MANAGEMENT TYPES (TSS-P5.5-TRANSFER-2026)
+// ============================================================================
+
+export type TransferTypeCode =
+  | 'cash_deposit'               // Cash to Bank
+  | 'cash_withdrawal'            // Bank to Cash
+  | 'bank_to_bank'               // Bank to Bank
+  | 'account_to_account'         // General Account to Account
+  | 'internal_fund_preserving';  // Internal Fund-Preserving Transfer
+
+export type TransferMethodType =
+  | 'cash'
+  | 'bank_transfer'
+  | 'cheque'
+  | 'online'
+  | 'mobile_banking'
+  | 'internal_clearing';
+
+export type TransferStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'POSTED' | 'REJECTED';
+
+export type TransferAuditEventType =
+  | 'TRANSFER_CREATED'
+  | 'TRANSFER_UPDATED'
+  | 'TRANSFER_SUBMITTED'
+  | 'TRANSFER_APPROVED'
+  | 'TRANSFER_REJECTED'
+  | 'TRANSFER_REOPENED'
+  | 'TRANSFER_POSTED'
+  | 'TRANSFER_POS_PRINTED'
+  | 'TRANSFER_VOUCHER_PRINTED'
+  | 'TRANSFER_SENSITIVE_VIEWED';
+
+export type TransferPermissionKey =
+  | 'finance.transfer.view'
+  | 'finance.transfer.create'
+  | 'finance.transfer.edit'
+  | 'finance.transfer.submit'
+  | 'finance.transfer.approve'
+  | 'finance.transfer.reject'
+  | 'finance.transfer.reopen'
+  | 'finance.transfer.post'
+  | 'finance.transfer.print'
+  | 'finance.transfer.voucher_print';
+
+export interface TransferAuditEvent {
+  id: string;
+  transferId: string;
+  eventType: TransferAuditEventType;
+  actorId: string;
+  actorName: string;
+  timestamp: string;
+  notes?: string;
+  changedFields?: Record<string, { before: any; after: any }>;
+  version?: number;
+}
+
+export interface TransferEntry {
+  // Identity & Multi-Tenant Boundary
+  id: string; // TRF-UUID
+  organizationId: string;
+  transferCode: string; // e.g. "TRF-2026-000001"
+  version: number;
+
+  // Classification (Unified Account -> Account Model)
+  transferType: TransferTypeCode;
+  sourceAccountId: string; // Account where money is withdrawn/transferred out
+  destinationAccountId: string; // Account where money is deposited/transferred in
+  fundId: string; // Fund under which the transfer occurs (Fund Preservation Rule)
+
+  // Financial
+  amount: number; // Positive decimal
+  amountInWordsBn: string; // Generated Bengali text
+  transferDate: string; // YYYY-MM-DD
+  transferMethod: TransferMethodType;
+
+  // References & Tracking
+  internalReference?: string;
+  externalReference?: string;
+  bankTransactionId?: string;
+  chequeNumber?: string;
+  depositSlipNumber?: string;
+  instrumentReference?: string;
+
+  // Description & Purpose
+  transferPurpose: string;
+  description: string;
+  notes?: string;
+
+  // Supporting Documents
+  supportingDocuments: SupportingDocumentMeta[];
+
+  // Workflow (Maker-Checker & Strict Status Machine)
+  status: TransferStatus;
+  createdBy: string;
+  createdByName?: string;
+  createdAt: string;
+  updatedAt: string;
+  submittedBy?: string;
+  submittedByName?: string;
+  submittedAt?: string;
+  approvedBy?: string; // Must NOT equal createdBy (Separation of Duties)
+  approvedByName?: string;
+  approvedAt?: string;
+  rejectedBy?: string;
+  rejectedByName?: string;
+  rejectedAt?: string;
+  rejectionReason?: string;
+  postedBy?: string;
+  postedByName?: string;
+  postedAt?: string;
+
+  // Financial Posting Reference (Posting Engine Ready & Idempotency Key)
+  financialTransactionId?: string;
+  isFinancialPosted?: boolean;
+
+  // Append-only Audit History
+  auditHistory: TransferAuditEvent[];
+}
+
+export interface TransferFilterCriteria {
+  searchQuery?: string;
+  transferType?: TransferTypeCode | 'all';
+  status?: TransferStatus | 'all';
+  sourceAccountId?: string | 'all';
+  destinationAccountId?: string | 'all';
+  fundId?: string | 'all';
+  dateFrom?: string;
+  dateTo?: string;
+  transferMethod?: TransferMethodType | 'all';
+  minAmount?: number;
+  maxAmount?: number;
+}
+
+export interface TransferSummaryMetrics {
+  totalCount: number;
+  draftCount: number;
+  submittedCount: number;
+  approvedCount: number;
+  postedCount: number;
+  rejectedCount: number;
+  totalApprovedAmount: number;
+  totalPostedAmount: number;
+  todayTransferredAmount: number;
+}
+
+// ============================================================================
+// PHASE 5.6: OPENING BALANCE / প্রারম্ভিক স্থিতি TYPES (TSS-P5.6-OB-2026)
+// ============================================================================
+
+export type OpeningBalanceStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'POSTED' | 'REJECTED';
+
+export type OpeningBalanceReasonCode =
+  | 'system_migration'           // নতুন সফটওয়্যারে হিসাব স্থানান্তর
+  | 'previous_cashbook'          // পূর্ববর্তী হিসাব খাতা থেকে স্থানান্তর
+  | 'bank_statement_alignment'   // ব্যাংক স্টেটমেন্ট অনুযায়ী
+  | 'committee_approved'         // কমিটি অনুমোদিত প্রারম্ভিক হিসাব
+  | 'other';                     // অন্যান্য
+
+export type OpeningBalanceAuditEventType =
+  | 'OPENING_BALANCE_CREATED'
+  | 'OPENING_BALANCE_UPDATED'
+  | 'OPENING_BALANCE_SUBMITTED'
+  | 'OPENING_BALANCE_APPROVED'
+  | 'OPENING_BALANCE_REJECTED'
+  | 'OPENING_BALANCE_REOPENED'
+  | 'OPENING_BALANCE_POSTED'
+  | 'OPENING_BALANCE_PRINTED'
+  | 'OPENING_BALANCE_SENSITIVE_VIEWED';
+
+export type OpeningBalancePermissionKey =
+  | 'finance.opening_balance.view'
+  | 'finance.opening_balance.create'
+  | 'finance.opening_balance.edit'
+  | 'finance.opening_balance.submit'
+  | 'finance.opening_balance.approve'
+  | 'finance.opening_balance.reject'
+  | 'finance.opening_balance.reopen'
+  | 'finance.opening_balance.print'
+  | 'finance.opening_balance.post';
+
+export interface OpeningBalanceAuditEvent {
+  id: string;
+  openingBalanceId: string;
+  eventType: OpeningBalanceAuditEventType;
+  actorId: string;
+  actorName: string;
+  timestamp: string;
+  previousStatus?: OpeningBalanceStatus;
+  newStatus?: OpeningBalanceStatus;
+  notes?: string;
+  changedFields?: Record<string, { before: any; after: any }>;
+  version?: number;
+}
+
+export interface OpeningBalanceEntry {
+  // Identity
+  id: string;
+  organizationId: string;
+  openingBalanceCode: string; // "OB-YYYY-NNNNNN"
+  version: number;
+
+  // Account & Fund Mapping (Controlled Starting Position)
+  accountId: string; // Only Cash / Bank account with openingBalanceSupported === true
+  fundId: string;    // Associated active fund under account
+  amount: number;    // Positive decimal > 0
+  amountInWordsBn: string; // Bengali currency words
+  openingDate: string;     // YYYY-MM-DD (Asia/Dhaka, no future date)
+
+  // Reason & Classification
+  reasonCode: OpeningBalanceReasonCode;
+  reasonDetails?: string;  // Required if reasonCode === 'other'
+
+  // Supporting Evidence
+  supportingDocuments: SupportingDocumentMeta[];
+  referenceNumber?: string;
+  notes?: string;
+
+  // Workflow (Maker-Checker Separation of Duties)
+  status: OpeningBalanceStatus;
+  createdBy: string;
+  createdByName?: string;
+  submittedBy?: string;
+  submittedByName?: string;
+  approvedBy?: string; // Must NOT equal createdBy
+  approvedByName?: string;
+  rejectedBy?: string;
+  rejectedByName?: string;
+  rejectionReason?: string;
+  postedBy?: string;
+  postedByName?: string;
+
+  // Timestamps
+  createdAt: string;
+  updatedAt: string;
+  submittedAt?: string;
+  approvedAt?: string;
+  rejectedAt?: string;
+  postedAt?: string;
+
+  // Financial Posting Boundary
+  financialTransactionId?: string; // Idempotency reference when POSTED
+  isFinancialPosted?: boolean;
+
+  // Append-only Audit History
+  auditHistory: OpeningBalanceAuditEvent[];
+}
+
+export interface OpeningBalanceFilterCriteria {
+  searchQuery?: string;
+  accountId?: string | 'all';
+  fundId?: string | 'all';
+  status?: OpeningBalanceStatus | 'all';
+  reasonCode?: OpeningBalanceReasonCode | 'all';
+  dateFrom?: string;
+  dateTo?: string;
+  makerId?: string | 'all';
+  minAmount?: number;
+  maxAmount?: number;
+}
+
+export interface OpeningBalanceSummaryMetrics {
+  totalCount: number;
+  draftCount: number;
+  submittedCount: number;
+  approvedCount: number;
+  postedCount: number;
+  rejectedCount: number;
+  totalApprovedAmount: number;
+  totalPostedAmount: number;
+}
+
+// ============================================================================
+// PHASE 5.7: UNIFIED LEDGER PROJECTION / POSTING LAYER (TSS-P5.7-LEDGER-2026)
+// ============================================================================
+
+export type LedgerSourceType = 'OPENING_BALANCE' | 'INCOME' | 'EXPENSE' | 'TRANSFER' | 'REVERSAL';
+export type LedgerDirection = 'IN' | 'OUT';
+
+export type LedgerAuditEventType =
+  | 'LEDGER_POSTED'
+  | 'LEDGER_DUPLICATE_BLOCKED'
+  | 'LEDGER_RECONCILIATION_CHECKED'
+  | 'LEDGER_REBUILD_STARTED'
+  | 'LEDGER_REBUILD_COMPLETED'
+  | 'LEDGER_REBUILD_FAILED'
+  | 'LEDGER_VIEWED'
+  | 'LEDGER_SOURCE_VIEWED';
+
+export type LedgerPermissionKey =
+  | 'finance.ledger.view'
+  | 'finance.ledger.reconcile'
+  | 'finance.ledger.rebuild'
+  | 'finance.ledger.source_view';
+
+export interface LedgerAuditEvent {
+  id: string;
+  organizationId: string;
+  eventType: LedgerAuditEventType;
+  actorId: string;
+  actorName: string;
+  timestamp: string;
+  notes?: string;
+  details?: Record<string, any>;
+}
+
+export interface LedgerEntry {
+  id: string; // LED-UUID
+  organizationId: string; // Tenant Boundary
+  ledgerCode: string; // e.g. "LED-2026-000001"
+  sourceType: LedgerSourceType; // Exact 4 source events: OPENING_BALANCE | INCOME | EXPENSE | TRANSFER
+  sourceId: string; // Foreign Key to source entity
+  sourceCode: string; // e.g. "OB-2026-000001", "INC-2026-000001", "EXP-2026-000001", "TRF-2026-000001"
+  accountId: string; // Target Account (Where)
+  fundId: string; // Target Fund (Purpose/Capital pool)
+  entryDate: string; // YYYY-MM-DD
+  direction: LedgerDirection; // 'IN' | 'OUT'
+  amount: number; // Positive decimal amount (no floating point issues)
+  description: string;
+  version: number;
+  postedAt: string; // ISO 8601
+  postedBy: string; // Actor ID
+  createdAt: string; // ISO 8601
+}
+
+export interface RunningBalanceEntry {
+  entry: LedgerEntry;
+  runningBalance: number;
+}
+
+export interface AccountFundBalanceSummary {
+  accountId: string;
+  accountCode: string;
+  accountName: string;
+  accountType: AccountType;
+  fundId: string;
+  fundCode: string;
+  fundName: string;
+  totalIn: number;
+  totalOut: number;
+  balance: number;
+  entryCount: number;
+  lastPostedDate?: string;
+}
+
+export interface AccountBalanceSummary {
+  accountId: string;
+  accountCode: string;
+  accountName: string;
+  accountType: AccountType;
+  totalIn: number;
+  totalOut: number;
+  totalBalance: number;
+  fundBreakdown: {
+    fundId: string;
+    fundCode: string;
+    fundName: string;
+    balance: number;
+    totalIn: number;
+    totalOut: number;
+    entryCount: number;
+  }[];
+}
+
+export interface FundBalanceSummary {
+  fundId: string;
+  fundCode: string;
+  fundName: string;
+  fundType: string;
+  totalIn: number;
+  totalOut: number;
+  totalBalance: number;
+  accountBreakdown: {
+    accountId: string;
+    accountCode: string;
+    accountName: string;
+    accountType: AccountType;
+    balance: number;
+    totalIn: number;
+    totalOut: number;
+    entryCount: number;
+  }[];
+}
+
+export interface FinancialStatementSummary {
+  dateFrom: string;
+  dateTo: string;
+  openingPosition: number;
+  totalIn: number;
+  totalOut: number;
+  closingPosition: number;
+  sourceBreakdown: {
+    sourceType: LedgerSourceType;
+    sourceLabelBn: string;
+    direction: LedgerDirection;
+    totalAmount: number;
+    entryCount: number;
+  }[];
+  accountBreakdown: {
+    accountId: string;
+    accountName: string;
+    openingBalance: number;
+    totalIn: number;
+    totalOut: number;
+    closingBalance: number;
+  }[];
+  fundBreakdown: {
+    fundId: string;
+    fundName: string;
+    openingBalance: number;
+    totalIn: number;
+    totalOut: number;
+    closingBalance: number;
+  }[];
+}
+
+export interface ReconciliationCheckResult {
+  checkId: string;
+  checkNameBn: string;
+  isPassed: boolean;
+  detailsBn: string;
+  expectedValue?: string | number;
+  actualValue?: string | number;
+  discrepancy?: any;
+}
+
+export interface LedgerReconciliationReport {
+  timestamp: string;
+  organizationId: string;
+  overallStatus: 'BALANCED' | 'RECONCILIATION_ERROR';
+  checks: ReconciliationCheckResult[];
+  totalAccountBalances: number;
+  totalFundBalances: number;
+  totalAccountFundBalances: number;
+  postedSourceCount: number;
+  ledgerEntriesCount: number;
+}
+
+export interface LedgerRebuildResult {
+  timestamp: string;
+  organizationId: string;
+  previousEntryCount: number;
+  newEntryCount: number;
+  sourcesProcessed: number;
+  status: 'SUCCESS' | 'FAILED';
+  reconciliationPassed: boolean;
+  messageBn: string;
+}
+
+export interface LedgerFilterCriteria {
+  searchQuery?: string;
+  sourceType?: LedgerSourceType | 'all';
+  accountId?: string | 'all';
+  fundId?: string | 'all';
+  direction?: LedgerDirection | 'all';
+  dateFrom?: string;
+  dateTo?: string;
+  minAmount?: number;
+  maxAmount?: number;
+}
+
+// ============================================================================
+// PHASE 5.8: REVERSAL & CORRECTION MANAGEMENT (TSS-P5.8-REV-COR-2026)
+// ============================================================================
+
+export type ReversalStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'POSTED' | 'REJECTED';
+
+export type ReversalReasonCode =
+  | 'wrong_entry'             // ভুল এন্ট্রি
+  | 'duplicate_entry'         // Duplicate Entry
+  | 'wrongly_posted'          // ভুলভাবে posted
+  | 'transaction_cancelled'   // Transaction বাতিল
+  | 'pre_correction'          // Correction-এর পূর্বধাপ
+  | 'other';                  // অন্যান্য
+
+export type ReversalAuditEventType =
+  | 'REVERSAL_CREATED'
+  | 'REVERSAL_UPDATED'
+  | 'REVERSAL_SUBMITTED'
+  | 'REVERSAL_APPROVED'
+  | 'REVERSAL_REJECTED'
+  | 'REVERSAL_REOPENED'
+  | 'REVERSAL_POSTED'
+  | 'REVERSAL_PRINTED'
+  | 'REVERSAL_SENSITIVE_VIEWED';
+
+export type ReversalPermissionKey =
+  | 'finance.reversal.view'
+  | 'finance.reversal.create'
+  | 'finance.reversal.edit'
+  | 'finance.reversal.submit'
+  | 'finance.reversal.approve'
+  | 'finance.reversal.reject'
+  | 'finance.reversal.reopen'
+  | 'finance.reversal.post'
+  | 'finance.reversal.print';
+
+export interface ReversalAuditEvent {
+  id: string;
+  reversalId: string;
+  eventType: ReversalAuditEventType;
+  actorId: string;
+  actorName: string;
+  timestamp: string;
+  previousStatus?: ReversalStatus;
+  newStatus?: ReversalStatus;
+  notes?: string;
+  changedFields?: Record<string, { before: any; after: any }>;
+  version?: number;
+}
+
+export interface ReversalEntry {
+  // Identity & Multi-Tenant Scoping
+  id: string; // REV-UUID
+  organizationId: string;
+  reversalCode: string; // "REV-YYYY-NNNNNN"
+  version: number;
+
+  // Source Reference (Only POSTED sources are reversible)
+  sourceType: 'INCOME' | 'EXPENSE' | 'TRANSFER' | 'OPENING_BALANCE';
+  sourceId: string; // Foreign Key to original source entity
+  sourceCode: string; // e.g. "INC-2026-0001", "EXP-2026-0001", "TRF-2026-0001", "OB-2026-0001"
+  sourceDomain: string; // e.g. "GENERAL_FINANCE"
+
+  // Reason & Justification
+  reversalReasonCode: ReversalReasonCode;
+  reversalReasonDetails?: string; // Mandatory if reasonCode === 'other'
+  reversalDate: string; // YYYY-MM-DD
+
+  // Financial Quantities (Strictly derived from original posted record)
+  originalAmount: number; // Derived & Read-only
+  reversalAmount: number; // Exactly equal to originalAmount (Full Reversal Only)
+  amountInWordsBn: string;
+
+  // Financial Dimensions (Inherited from original posted source)
+  accountId: string; // Primary/Source Account
+  destinationAccountId?: string; // For Transfer reversal: Original Destination Account
+  fundId: string; // Inherited Fund
+  headId?: string; // Original Head classification if applicable
+
+  // Historical Snapshot Metadata
+  originalPostedAt: string;
+  originalPostedBy: string;
+
+  // Workflow (Maker-Checker Enforced)
+  status: ReversalStatus;
+  createdBy: string;
+  createdByName?: string;
+  submittedBy?: string;
+  submittedByName?: string;
+  approvedBy?: string; // Must NOT equal createdBy (Separation of Duties)
+  approvedByName?: string;
+  rejectedBy?: string;
+  rejectedByName?: string;
+  rejectionReason?: string;
+  postedBy?: string;
+  postedByName?: string;
+
+  // Timestamps
+  createdAt: string;
+  updatedAt: string;
+  submittedAt?: string;
+  approvedAt?: string;
+  rejectedAt?: string;
+  postedAt?: string;
+
+  // Posting Engine & Idempotency Boundary
+  financialTransactionId?: string; // Generated upon POSTED
+  isFinancialPosted?: boolean;
+
+  // Linked Correction Reference
+  correctionId?: string;
+  notes?: string;
+
+  // Append-only Audit History
+  auditHistory: ReversalAuditEvent[];
+}
+
+export interface ReversalFilterCriteria {
+  searchQuery?: string;
+  sourceType?: 'INCOME' | 'EXPENSE' | 'TRANSFER' | 'OPENING_BALANCE' | 'all';
+  status?: ReversalStatus | 'all';
+  accountId?: string | 'all';
+  fundId?: string | 'all';
+  reversalReasonCode?: ReversalReasonCode | 'all';
+  dateFrom?: string;
+  dateTo?: string;
+  makerId?: string | 'all';
+  minAmount?: number;
+  maxAmount?: number;
+}
+
+// CORRECTION MANAGEMENT (TSS-P5.8-COR-2026)
+export type CorrectionType = 'NON_FINANCIAL' | 'FINANCIAL';
+
+export type CorrectionReasonCode =
+  | 'wrong_amount'            // ভুল পরিমাণ
+  | 'wrong_head'              // ভুল Head
+  | 'wrong_fund'              // ভুল Fund
+  | 'wrong_account'           // ভুল Account
+  | 'wrong_date'              // ভুল তারিখ
+  | 'wrong_party'             // ভুল Party/Source
+  | 'duplicate_entry'         // Duplicate Entry
+  | 'wrong_source_domain'     // ভুল Source Domain
+  | 'other';                  // অন্যান্য
+
+export type CorrectionStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'COMPLETED' | 'REJECTED';
+
+export type CorrectionAuditEventType =
+  | 'CORRECTION_CREATED'
+  | 'CORRECTION_UPDATED'
+  | 'CORRECTION_SUBMITTED'
+  | 'CORRECTION_APPROVED'
+  | 'CORRECTION_REJECTED'
+  | 'CORRECTION_REOPENED'
+  | 'CORRECTION_COMPLETED'
+  | 'CORRECTION_PRINTED'
+  | 'CORRECTION_SENSITIVE_VIEWED';
+
+export type CorrectionPermissionKey =
+  | 'finance.correction.view'
+  | 'finance.correction.create'
+  | 'finance.correction.edit'
+  | 'finance.correction.submit'
+  | 'finance.correction.approve'
+  | 'finance.correction.reject'
+  | 'finance.correction.reopen'
+  | 'finance.correction.complete'
+  | 'finance.correction.print';
+
+export interface CorrectionAuditEvent {
+  id: string;
+  correctionId: string;
+  eventType: CorrectionAuditEventType;
+  actorId: string;
+  actorName: string;
+  timestamp: string;
+  previousStatus?: CorrectionStatus;
+  newStatus?: CorrectionStatus;
+  notes?: string;
+  changedFields?: Record<string, { before: any; after: any }>;
+  version?: number;
+}
+
+export interface CorrectionSnapshot {
+  sourceCode: string;
+  sourceType: 'INCOME' | 'EXPENSE' | 'TRANSFER' | 'OPENING_BALANCE';
+  amount: number;
+  accountId: string;
+  accountName?: string;
+  destinationAccountId?: string;
+  destinationAccountName?: string;
+  fundId: string;
+  fundName?: string;
+  headId?: string;
+  headName?: string;
+  date: string;
+  sourceDomain: string;
+  partyOrSourceRef?: string;
+  description?: string;
+  reference?: string;
+  originalStatus: string;
+  originalPostedAt?: string;
+  originalPostedBy?: string;
+}
+
+export interface CorrectionEntry {
+  // Identity & Multi-Tenant Scoping
+  id: string; // COR-UUID
+  organizationId: string;
+  correctionCode: string; // "COR-YYYY-NNNNNN"
+  version: number;
+
+  // Source & Chain Relationship
+  originalSourceId: string;
+  originalSourceCode: string;
+  sourceType: 'INCOME' | 'EXPENSE' | 'TRANSFER' | 'OPENING_BALANCE';
+
+  // Explicit Chain Links
+  reversalId?: string;
+  reversalCode?: string;
+  correctedSourceId?: string;
+  correctedSourceCode?: string;
+
+  // Classification & Reason
+  correctionType: CorrectionType;
+  reasonCode: CorrectionReasonCode;
+  reasonDetails?: string; // Mandatory if reasonCode === 'other'
+
+  // Immutable Snapshots
+  originalSnapshot: CorrectionSnapshot;
+  correctedSnapshot?: Partial<CorrectionSnapshot>;
+  financialEffect?: string;
+
+  // Workflow (Maker-Checker Enforced)
+  status: CorrectionStatus;
+  createdBy: string;
+  createdByName?: string;
+  submittedBy?: string;
+  submittedByName?: string;
+  approvedBy?: string; // Must NOT equal createdBy (Separation of Duties)
+  approvedByName?: string;
+  rejectedBy?: string;
+  rejectedByName?: string;
+  rejectionReason?: string;
+  completedBy?: string;
+  completedByName?: string;
+
+  // Timestamps
+  createdAt: string;
+  updatedAt: string;
+  submittedAt?: string;
+  approvedAt?: string;
+  rejectedAt?: string;
+  completedAt?: string;
+
+  notes?: string;
+
+  // Append-only Audit History
+  auditHistory: CorrectionAuditEvent[];
+}
+
+export interface CorrectionFilterCriteria {
+  searchQuery?: string;
+  correctionType?: CorrectionType | 'all';
+  sourceType?: 'INCOME' | 'EXPENSE' | 'TRANSFER' | 'OPENING_BALANCE' | 'all';
+  status?: CorrectionStatus | 'all';
+  reasonCode?: CorrectionReasonCode | 'all';
+  dateFrom?: string;
+  dateTo?: string;
+  makerId?: string | 'all';
+}
 
 
 

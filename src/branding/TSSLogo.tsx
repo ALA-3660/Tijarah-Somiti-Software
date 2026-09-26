@@ -1,7 +1,7 @@
 import React from 'react';
 import { BRAND_CONFIG } from './brandingConfig';
 
-export type TSSLogoVariant = 'icon' | 'compact' | 'full' | 'wordmark' | 'app-icon';
+export type TSSLogoVariant = 'icon' | 'compact' | 'full' | 'horizontal' | 'stacked' | 'wordmark' | 'app-icon';
 export type TSSLogoTheme = 'light' | 'dark' | 'emerald' | 'monochrome' | 'amber';
 export type TSSLogoSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
 
@@ -17,8 +17,13 @@ export interface TSSLogoProps {
 }
 
 /**
- * TSS Monogram Vector Symbol (Mathematical SVG)
- * Blends Modern Islamic Octagram symmetry with structured T, S, S typography.
+ * TSS Professional Monogram Vector Symbol (Geometric Master Mark)
+ * 
+ * Design Philosophy:
+ * - Unified Monogram combining T (Tijarah - Foundation/Pillar), S (Samity - Cooperative Circulation), S (Software - Technology/Flow).
+ * - Islamic Geometric Foundation: 8-fold rotational equilibrium, faceted octagonal geometry, precision 45° chamfers.
+ * - Negative Space Architecture: Clear 3.5px isolation channels ensuring zero blur at 20px–24px.
+ * - Central Golden Node: Islamic diamond node representing halal audit integrity and transparency.
  */
 export const TSSMonogramSymbol: React.FC<{
   sizePx: number;
@@ -26,70 +31,80 @@ export const TSSMonogramSymbol: React.FC<{
   isAppIcon?: boolean;
   className?: string;
 }> = ({ sizePx, theme = 'light', isAppIcon = false, className = '' }) => {
-  // Theme color maps for symbol
-  const getColors = () => {
+  // Theme-specific color palettes
+  const getThemePalette = () => {
     switch (theme) {
-      case 'emerald':
-        return {
-          bg: '#0F5132',
-          border: '#198754',
-          accent: '#B45309',
-          accentLight: '#F59E0B',
-          letterT: '#FFFFFF',
-          letterS: '#FCD34D',
-          innerStar: 'rgba(255, 255, 255, 0.08)',
-          glow: 'rgba(245, 158, 11, 0.25)',
-        };
       case 'dark':
         return {
-          bg: '#0A3622',
-          border: '#198754',
-          accent: '#F59E0B',
-          accentLight: '#FCD34D',
-          letterT: '#FFFFFF',
-          letterS: '#F59E0B',
-          innerStar: 'rgba(255, 255, 255, 0.06)',
-          glow: 'rgba(245, 158, 11, 0.3)',
+          bgGradStart: '#0A3622',
+          bgGradEnd: '#041D12',
+          chassisBorder: '#1E5E3A',
+          primaryPillar: '#FFFFFF',
+          primaryPillarGrad: '#E2E8F0',
+          ribbonAmberLight: '#FBBF24',
+          ribbonAmberDark: '#D97706',
+          centerStar: '#FDE68A',
+          haloGlow: 'rgba(245, 158, 11, 0.25)',
+          geoGrid: 'rgba(255, 255, 255, 0.08)',
+        };
+      case 'emerald':
+        return {
+          bgGradStart: '#0F5132',
+          bgGradEnd: '#083C24',
+          chassisBorder: '#198754',
+          primaryPillar: '#FFFFFF',
+          primaryPillarGrad: '#F8FAFC',
+          ribbonAmberLight: '#FCD34D',
+          ribbonAmberDark: '#B45309',
+          centerStar: '#FEF3C7',
+          haloGlow: 'rgba(252, 211, 77, 0.3)',
+          geoGrid: 'rgba(255, 255, 255, 0.1)',
         };
       case 'monochrome':
         return {
-          bg: '#1E293B',
-          border: '#475569',
-          accent: '#FFFFFF',
-          accentLight: '#F1F5F9',
-          letterT: '#FFFFFF',
-          letterS: '#CBD5E1',
-          innerStar: 'rgba(255, 255, 255, 0.05)',
-          glow: 'none',
+          bgGradStart: '#0F172A',
+          bgGradEnd: '#1E293B',
+          chassisBorder: '#475569',
+          primaryPillar: '#FFFFFF',
+          primaryPillarGrad: '#F1F5F9',
+          ribbonAmberLight: '#E2E8F0',
+          ribbonAmberDark: '#94A3B8',
+          centerStar: '#FFFFFF',
+          haloGlow: 'none',
+          geoGrid: 'rgba(255, 255, 255, 0.06)',
         };
       case 'amber':
         return {
-          bg: '#B45309',
-          border: '#D97706',
-          accent: '#FEF3C7',
-          accentLight: '#FFFFFF',
-          letterT: '#FFFFFF',
-          letterS: '#FEF3C7',
-          innerStar: 'rgba(255, 255, 255, 0.12)',
-          glow: 'rgba(254, 243, 199, 0.3)',
+          bgGradStart: '#B45309',
+          bgGradEnd: '#78350F',
+          chassisBorder: '#F59E0B',
+          primaryPillar: '#FFFFFF',
+          primaryPillarGrad: '#FEF3C7',
+          ribbonAmberLight: '#FEF3C7',
+          ribbonAmberDark: '#FDE68A',
+          centerStar: '#FFFFFF',
+          haloGlow: 'rgba(254, 243, 199, 0.35)',
+          geoGrid: 'rgba(255, 255, 255, 0.12)',
         };
       case 'light':
       default:
         return {
-          bg: '#0F5132',
-          border: '#0A3622',
-          accent: '#B45309',
-          accentLight: '#F59E0B',
-          letterT: '#FFFFFF',
-          letterS: '#FCD34D',
-          innerStar: 'rgba(255, 255, 255, 0.08)',
-          glow: 'rgba(15, 81, 50, 0.2)',
+          bgGradStart: '#0F5132',
+          bgGradEnd: '#0A3622',
+          chassisBorder: '#0F5132',
+          primaryPillar: '#FFFFFF',
+          primaryPillarGrad: '#F8FAFC',
+          ribbonAmberLight: '#F59E0B',
+          ribbonAmberDark: '#B45309',
+          centerStar: '#FDE68A',
+          haloGlow: 'rgba(15, 81, 50, 0.15)',
+          geoGrid: 'rgba(255, 255, 255, 0.08)',
         };
     }
   };
 
-  const colors = getColors();
-  const radius = isAppIcon ? sizePx * 0.22 : sizePx * 0.24;
+  const palette = getThemePalette();
+  const radius = isAppIcon ? 22 : 24;
 
   return (
     <svg
@@ -98,73 +113,133 @@ export const TSSMonogramSymbol: React.FC<{
       viewBox="0 0 100 100"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={`shrink-0 transition-transform duration-200 ${className}`}
+      className={`shrink-0 select-none transition-transform duration-200 ${className}`}
       aria-hidden="true"
     >
       <defs>
-        {/* Soft Linear Gradient for Primary Background */}
-        <linearGradient id={`tss-bg-grad-${theme}`} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor={colors.bg} />
-          <stop offset="100%" stopColor={theme === 'dark' ? '#041d12' : theme === 'emerald' ? '#083c24' : '#0a3a24'} />
+        {/* Background Radial Gradient */}
+        <linearGradient id={`tss-bg-gradient-${theme}`} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor={palette.bgGradStart} />
+          <stop offset="100%" stopColor={palette.bgGradEnd} />
         </linearGradient>
 
-        {/* Amber Gold Accent Gradient for S Monograms */}
-        <linearGradient id={`tss-gold-grad-${theme}`} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor={colors.accentLight} />
-          <stop offset="100%" stopColor={colors.accent} />
+        {/* Primary Pillar Gradient (T-Anchor) */}
+        <linearGradient id={`tss-pillar-gradient-${theme}`} x1="50%" y1="18%" x2="50%" y2="82%">
+          <stop offset="0%" stopColor={palette.primaryPillar} />
+          <stop offset="100%" stopColor={palette.primaryPillarGrad} />
         </linearGradient>
 
-        {/* Star Glow Filter */}
-        <filter id={`tss-shadow-${theme}`} x="-10%" y="-10%" width="120%" height="120%">
-          <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="rgba(0,0,0,0.15)" />
+        {/* Golden Interlocking Ribbon Gradient (Samity/Software Flow) */}
+        <linearGradient id={`tss-ribbon-gradient-${theme}`} x1="20%" y1="20%" x2="80%" y2="80%">
+          <stop offset="0%" stopColor={palette.ribbonAmberLight} />
+          <stop offset="100%" stopColor={palette.ribbonAmberDark} />
+        </linearGradient>
+
+        {/* Reverse Golden Gradient for Dynamic Depth */}
+        <linearGradient id={`tss-ribbon-rev-gradient-${theme}`} x1="80%" y1="20%" x2="20%" y2="80%">
+          <stop offset="0%" stopColor={palette.ribbonAmberLight} />
+          <stop offset="100%" stopColor={palette.ribbonAmberDark} />
+        </linearGradient>
+
+        {/* Crisp Shadow Filter for Elevation */}
+        <filter id={`tss-elevation-${theme}`} x="-15%" y="-15%" width="130%" height="130%">
+          <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" floodColor="rgba(0,0,0,0.28)" />
         </filter>
       </defs>
 
-      {/* Outer Rounded Container with Subtle Inset Border */}
+      {/* 1. Outer Chassis: Rounded Octagonal/Square Emblem with Precision Bevel */}
       <rect
-        x="2"
-        y="2"
-        width="96"
-        height="96"
+        x="3"
+        y="3"
+        width="94"
+        height="94"
         rx={radius}
-        fill={`url(#tss-bg-grad-${theme})`}
-        stroke={colors.border}
-        strokeWidth="2.5"
+        fill={`url(#tss-bg-gradient-${theme})`}
+        stroke={palette.chassisBorder}
+        strokeWidth="2"
       />
 
-      {/* Subtle Islamic 8-Pointed Star Geometrical Grid (Subtle Watermark) */}
-      <g opacity="0.45" stroke={colors.innerStar} strokeWidth="1.2" fill="none">
-        {/* Diamond 1 */}
-        <rect x="23" y="23" width="54" height="54" rx="4" transform="rotate(0 50 50)" />
-        {/* Diamond 2 rotated 45 deg */}
-        <rect x="23" y="23" width="54" height="54" rx="4" transform="rotate(45 50 50)" />
+      {/* 2. Architectural 8-Pointed Islamic Geometric Watermark Grid */}
+      <g opacity="0.35" stroke={palette.geoGrid} strokeWidth="1" fill="none">
+        {/* Diamond 1 (Square) */}
+        <rect x="24" y="24" width="52" height="52" rx="6" />
+        {/* Diamond 2 (Rotated 45 degrees) */}
+        <rect x="24" y="24" width="52" height="52" rx="6" transform="rotate(45 50 50)" />
       </g>
 
-      {/* Central TSS Monogram Construction */}
-      <g id="tss-monogram-core">
-        {/* T-BAR (Top Anchor - Clean Modernist Bar) */}
+      {/* 3. Central Unified Monogram Mark (T-S-S Geometric Synthesis) */}
+      <g id="tss-unified-symbol" filter={`url(#tss-elevation-${theme})`}>
+        
+        {/* UPPER S-SWEEP: Geometric Halal Flow (Top Ribbon looping around central node) */}
         <path
-          d="M 22 26 L 78 26 C 80.2 26 82 27.8 82 30 C 82 32.2 80.2 34 78 34 L 56 34 L 56 74 C 56 76.2 54.2 78 52 78 C 49.8 78 48 76.2 48 74 L 48 34 L 22 34 C 19.8 34 18 32.2 18 30 C 18 27.8 19.8 26 22 26 Z"
-          fill={colors.letterT}
-          filter={`url(#tss-shadow-${theme})`}
+          d="M 28 36 
+             C 28 28, 38 24, 50 24 
+             C 62 24, 72 28, 72 36 
+             C 72 43, 64 47, 50 50
+             C 36 47, 28 43, 28 36 Z"
+          fill={`url(#tss-ribbon-gradient-${theme})`}
+          opacity="0.95"
         />
 
-        {/* LEFT 'S' (Interlocking Geometric Wave on Left Flank) */}
+        {/* LOWER S-SWEEP: Dynamic Financial Circulation Ribbon */}
         <path
-          d="M 44 42 C 44 38.5 39 37 34 37 C 28.5 37 24 40.5 24 45.5 C 24 51 29 53 35 55 C 41 57 44 59.5 44 64.5 C 44 70 39 73 33 73 C 27 73 23 69.5 22.5 65.5 C 22.3 64 23.5 62.5 25 62.5 C 26.3 62.5 27.4 63.5 27.7 64.8 C 28.2 67 30.5 68.8 33 68.8 C 36.5 68.8 39.5 67 39.5 64.2 C 39.5 60.5 35.5 59 30.5 57 C 25 54.8 20 52 20 46 C 20 39.5 25.5 33 34 33 C 41 33 46 36.8 46.5 41.5 C 46.7 42.8 45.6 44 44.3 44 C 44.1 44 44 43 44 42 Z"
-          fill={`url(#tss-gold-grad-${theme})`}
+          d="M 50 50 
+             C 36 53, 28 57, 28 64 
+             C 28 72, 38 76, 50 76 
+             C 62 76, 72 72, 72 64 
+             C 72 57, 64 53, 50 50 Z"
+          fill={`url(#tss-ribbon-rev-gradient-${theme})`}
+          opacity="0.95"
         />
 
-        {/* RIGHT 'S' (Symmetric Geometric Wave on Right Flank) */}
+        {/* CENTRAL T-ARCHITECTURAL PILLAR & CROSS-BAR (Tijarah & Stability Anchor) */}
+        {/* Horizontal T-Cap with Chamfered Precision Terminals */}
         <path
-          d="M 77.5 42 C 77.5 38.5 72.5 37 67.5 37 C 62 37 57.5 40.5 57.5 45.5 C 57.5 51 62.5 53 68.5 55 C 74.5 57 77.5 59.5 77.5 64.5 C 77.5 70 72.5 73 66.5 73 C 60.5 73 56.5 69.5 56 65.5 C 55.8 64 57 62.5 58.5 62.5 C 59.8 62.5 60.9 63.5 61.2 64.8 C 61.7 67 64 68.8 66.5 68.8 C 70 68.8 73 67 73 64.2 C 73 60.5 69 59 64 57 C 58.5 54.8 53.5 52 53.5 46 C 53.5 39.5 59 33 67.5 33 C 74.5 33 79.5 36.8 80 41.5 C 80.2 42.8 79.1 44 77.8 44 C 77.6 44 77.5 43 77.5 42 Z"
-          fill={`url(#tss-gold-grad-${theme})`}
+          d="M 21 27 L 79 27 C 80.5 27 81.5 28.2 81.5 29.8 C 81.5 31.4 80.5 32.6 79 32.6 L 56 32.6 L 56 72 C 56 73.8 54.5 75.2 52.8 75.2 L 47.2 75.2 C 45.5 75.2 44 73.8 44 72 L 44 32.6 L 21 32.6 C 19.5 32.6 18.5 31.4 18.5 29.8 C 18.5 28.2 19.5 27 21 27 Z"
+          fill={`url(#tss-pillar-gradient-${theme})`}
         />
 
-        {/* Small Bottom Halal Seal Dot (Golden Geometric Diamond) */}
+        {/* INTERLOCKING S-CURVE FACETS (Interlocking Bands with Precision Negative Gap) */}
+        {/* Left 'S' Dynamic Ribbon Segment */}
+        <path
+          d="M 40 40 
+             C 35 41, 30 43.5, 30 48.5 
+             C 30 53.5, 35 55.5, 42 57.5 
+             L 42 63.5 
+             C 34 61.5, 25 58, 25 50 
+             C 25 41.5, 33 36.5, 40 34.5 Z"
+          fill={`url(#tss-ribbon-gradient-${theme})`}
+        />
+
+        {/* Right 'S' Dynamic Ribbon Segment (Symmetric Interlocking Loop) */}
+        <path
+          d="M 60 60 
+             C 65 59, 70 56.5, 70 51.5 
+             C 70 46.5, 65 44.5, 58 42.5 
+             L 58 36.5 
+             C 66 38.5, 75 42, 75 50 
+             C 75 58.5, 67 63.5, 60 65.5 Z"
+          fill={`url(#tss-ribbon-rev-gradient-${theme})`}
+        />
+
+        {/* CENTRAL ISLAMIC 8-POINTED DIAMOND STAR KEYSTONE (Halal Audit & Trust Core) */}
+        <g transform="translate(50, 50)">
+          {/* Outer Golden Glow Rhombus */}
+          <polygon
+            points="0,-6.5 4.5,-2 6.5,0 4.5,2 0,6.5 -4.5,2 -6.5,0 -4.5,-2"
+            fill={palette.centerStar}
+          />
+          {/* Core White Diamond Spark */}
+          <polygon
+            points="0,-3.5 2.5,0 0,3.5 -2.5,0"
+            fill="#FFFFFF"
+          />
+        </g>
+
+        {/* BOTTOM FOUNDATION BEVEL (Solid Base Terminal) */}
         <polygon
-          points="50,81 53,84 50,87 47,84"
-          fill={colors.accentLight}
+          points="50,78 54,82 50,86 46,82"
+          fill={palette.ribbonAmberLight}
         />
       </g>
     </svg>
@@ -181,7 +256,7 @@ export const TSSLogo: React.FC<TSSLogoProps> = ({
   id,
   onClick,
 }) => {
-  // Size mapping (px)
+  // Size metrics mapping
   const sizeMap: Record<TSSLogoSize, { px: number; titleClass: string; subClass: string; tagClass: string; gap: string }> = {
     xs: { px: 22, titleClass: 'text-xs font-bold', subClass: 'text-[9px]', tagClass: 'text-[8px]', gap: 'gap-1.5' },
     sm: { px: 28, titleClass: 'text-sm font-bold', subClass: 'text-[10px]', tagClass: 'text-[9px]', gap: 'gap-2' },
@@ -193,7 +268,7 @@ export const TSSLogo: React.FC<TSSLogoProps> = ({
 
   const currentSize = sizeMap[size];
 
-  // Text color mapping according to theme
+  // Theme text color mapping
   const getTextColor = () => {
     switch (theme) {
       case 'dark':
@@ -204,6 +279,7 @@ export const TSSLogo: React.FC<TSSLogoProps> = ({
           accent: 'text-amber-300',
           tagline: 'text-emerald-100/80',
           badge: 'bg-emerald-800/80 text-emerald-100 border-emerald-600/50',
+          divider: 'text-emerald-400/40',
         };
       case 'monochrome':
         return {
@@ -212,6 +288,7 @@ export const TSSLogo: React.FC<TSSLogoProps> = ({
           accent: 'text-slate-800',
           tagline: 'text-slate-500',
           badge: 'bg-slate-100 text-slate-700 border-slate-300',
+          divider: 'text-slate-300',
         };
       case 'amber':
         return {
@@ -220,22 +297,24 @@ export const TSSLogo: React.FC<TSSLogoProps> = ({
           accent: 'text-amber-700',
           tagline: 'text-amber-800/90',
           badge: 'bg-amber-100 text-amber-900 border-amber-300',
+          divider: 'text-amber-400/40',
         };
       case 'light':
       default:
         return {
-          brand: 'text-slate-900',
+          brand: 'text-slate-950',
           brandSub: 'text-slate-600',
           accent: 'text-[#B45309]',
           tagline: 'text-slate-500',
           badge: 'bg-emerald-50 text-[#0F5132] border-emerald-200',
+          divider: 'text-slate-300',
         };
     }
   };
 
   const textColors = getTextColor();
 
-  // 1. Icon Only / App Icon variant
+  // 1. Icon Only / App Icon Variant
   if (variant === 'icon' || variant === 'app-icon') {
     return (
       <div
@@ -254,7 +333,7 @@ export const TSSLogo: React.FC<TSSLogoProps> = ({
     );
   }
 
-  // 2. Wordmark Only variant
+  // 2. Wordmark Only Variant
   if (variant === 'wordmark') {
     return (
       <div
@@ -266,7 +345,7 @@ export const TSSLogo: React.FC<TSSLogoProps> = ({
           <span className={`font-mono tracking-wider font-extrabold ${currentSize.titleClass} ${textColors.brand}`}>
             {BRAND_CONFIG.shortName}
           </span>
-          <span className="text-slate-300 font-light">•</span>
+          <span className={`${textColors.divider} font-light`}>•</span>
           <span className={`font-heading font-bold ${currentSize.subClass} ${textColors.accent}`}>
             {BRAND_CONFIG.fullName}
           </span>
@@ -280,8 +359,41 @@ export const TSSLogo: React.FC<TSSLogoProps> = ({
     );
   }
 
-  // 3. Compact Logo: Symbol + TSS + (Bangla/Subtext)
-  if (variant === 'compact') {
+  // 3. Stacked Logo Variant (Symbol above TSS & Descriptor)
+  if (variant === 'stacked') {
+    return (
+      <div
+        id={id}
+        onClick={onClick}
+        className={`inline-flex flex-col items-center text-center select-none ${onClick ? 'cursor-pointer' : ''} ${className}`}
+        role="img"
+        aria-label={`${BRAND_CONFIG.shortName} — ${BRAND_CONFIG.fullName}`}
+      >
+        <TSSMonogramSymbol sizePx={currentSize.px * 1.3} theme={theme} />
+        <div className="flex flex-col items-center mt-2.5">
+          <span className={`font-mono tracking-wider font-extrabold leading-none ${currentSize.titleClass} ${textColors.brand}`}>
+            {BRAND_CONFIG.shortName}
+          </span>
+          <span className={`font-heading font-bold tracking-tight mt-1 leading-tight ${currentSize.subClass} ${textColors.brandSub}`}>
+            {BRAND_CONFIG.fullName}
+          </span>
+          {showBangla && (
+            <span className={`font-heading font-semibold mt-0.5 leading-tight ${currentSize.tagClass} ${textColors.accent}`}>
+              {BRAND_CONFIG.banglaName}
+            </span>
+          )}
+          {showTagline && (
+            <p className={`font-body leading-relaxed mt-1 font-normal max-w-xs ${currentSize.tagClass} ${textColors.tagline}`}>
+              {BRAND_CONFIG.tagline}
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // 4. Horizontal / Compact Logo Variant (Symbol + TSS + Bangla Descriptor)
+  if (variant === 'horizontal' || variant === 'compact') {
     return (
       <div
         id={id}
@@ -293,7 +405,7 @@ export const TSSLogo: React.FC<TSSLogoProps> = ({
         <TSSMonogramSymbol sizePx={currentSize.px} theme={theme} />
         <div className="flex flex-col justify-center">
           <div className="flex items-center gap-1.5">
-            <span className={`font-mono tracking-tight font-extrabold leading-none ${currentSize.titleClass} ${textColors.brand}`}>
+            <span className={`font-mono tracking-wider font-extrabold leading-none ${currentSize.titleClass} ${textColors.brand}`}>
               {BRAND_CONFIG.shortName}
             </span>
             {showBangla && (
@@ -312,7 +424,7 @@ export const TSSLogo: React.FC<TSSLogoProps> = ({
     );
   }
 
-  // 4. Full Logo (Default): Symbol + TSS + Full English Name + Full Bangla Name + Optional Tagline
+  // 5. Full Logo (Default): Symbol + TSS | Full English Name + Full Bangla Name + Optional Tagline
   return (
     <div
       id={id}
@@ -324,10 +436,10 @@ export const TSSLogo: React.FC<TSSLogoProps> = ({
       <TSSMonogramSymbol sizePx={currentSize.px} theme={theme} />
       <div className="flex flex-col justify-center">
         <div className="flex items-center gap-2">
-          <span className={`font-mono tracking-tight font-extrabold leading-none ${currentSize.titleClass} ${textColors.brand}`}>
+          <span className={`font-mono tracking-wider font-extrabold leading-none ${currentSize.titleClass} ${textColors.brand}`}>
             {BRAND_CONFIG.shortName}
           </span>
-          <span className="text-slate-400 text-xs font-light">|</span>
+          <span className={`${textColors.divider} text-xs font-light`}>|</span>
           <span className={`font-heading font-bold tracking-tight leading-none ${currentSize.subClass} ${textColors.brandSub}`}>
             {BRAND_CONFIG.fullName}
           </span>

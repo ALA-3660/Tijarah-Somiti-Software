@@ -16,7 +16,10 @@ import {
   Info, 
   Award,
   Download,
-  AlertTriangle
+  AlertTriangle,
+  Compass,
+  Grid,
+  Hexagon
 } from 'lucide-react';
 import { BRAND_CONFIG } from './brandingConfig';
 import { TSSLogo, TSSMonogramSymbol, TSSLogoVariant, TSSLogoTheme, TSSLogoSize } from './TSSLogo';
@@ -55,7 +58,7 @@ export const TSSBrandSpecimen: React.FC<{
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-3xl sm:text-4xl font-extrabold font-mono tracking-tight text-white">
+              <h1 className="text-3xl sm:text-4xl font-extrabold font-mono tracking-wider text-white">
                 {BRAND_CONFIG.shortName}
               </h1>
               <span className="text-emerald-300 text-2xl font-light">|</span>
@@ -75,9 +78,9 @@ export const TSSBrandSpecimen: React.FC<{
 
           {/* Quick Monogram Hero Badge */}
           <div className="flex flex-col items-center justify-center p-5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-inner shrink-0">
-            <TSSMonogramSymbol sizePx={72} theme="emerald" isAppIcon={true} />
-            <span className="text-xs font-mono font-bold mt-2 text-white">TSS Monogram</span>
-            <span className="text-[10px] text-emerald-200 font-numeric">Islamic Geometry + Modern Tech</span>
+            <TSSMonogramSymbol sizePx={76} theme="emerald" isAppIcon={true} />
+            <span className="text-xs font-mono font-bold mt-2 text-white">TSS Geometric Monogram</span>
+            <span className="text-[10px] text-amber-300 font-numeric">Islamic Symmetry + Modern Tech</span>
           </div>
         </div>
 
@@ -109,13 +112,63 @@ export const TSSBrandSpecimen: React.FC<{
         </div>
       </div>
 
-      {/* 2. Centralized Brand Configuration & Tokens */}
+      {/* 2. Logo Redesign Philosophy & Construction Grid */}
+      <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-6">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <Compass className="w-5 h-5 text-emerald-700" />
+            <h3 className="text-base font-bold text-slate-900 font-heading">
+              ১. লোগো আর্কিটেকচার ও জ্যামিতিক বিনির্মাণ (Geometric Construction & Monogram Philosophy)
+            </h3>
+          </div>
+          <span className="text-xs font-mono text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md font-semibold">
+            Unified T-S-S Synthesis
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {/* T-Pillar Concept */}
+          <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 space-y-2">
+            <div className="flex items-center gap-2 text-emerald-900 font-heading font-bold text-sm">
+              <span className="w-6 h-6 rounded-md bg-emerald-800 text-white flex items-center justify-center text-xs font-mono">T</span>
+              <span>তিজারাহ (Tijarah) — মূল স্তম্ভ ও ভিত</span>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed font-body">
+              সেন্ট্রাল টি-অ্যাঙ্করটি একটি সুদৃঢ় ভিত্তি ও কাঠামোর প্রতীক। এটি নৈতিক ব্যবসা, নিয়মতান্ত্রিকতা ও আর্থিক স্থিতিশীলতার প্রতিনিধিত্ব করে।
+            </p>
+          </div>
+
+          {/* S-Ribbon Concept */}
+          <div className="p-4 rounded-xl border border-amber-200 bg-amber-50/40 space-y-2">
+            <div className="flex items-center gap-2 text-amber-950 font-heading font-bold text-sm">
+              <span className="w-6 h-6 rounded-md bg-amber-600 text-white flex items-center justify-center text-xs font-mono">S</span>
+              <span>সমিতি (Samity) — পারস্পরিক আবর্তন ও ঐক্য</span>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed font-body">
+              দ্বৈত ইন্টারলকিং গোল্ডেন রিবন ফিতাগুলোর অবিচ্ছিন্ন প্রবাহ পারস্পরিক সঞ্চয়, সমবায় অংশীদারিত্ব এবং হালাল অর্থ সঞ্চালনের প্রতীক।
+            </p>
+          </div>
+
+          {/* S-Software Concept & Diamond Node */}
+          <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+            <div className="flex items-center gap-2 text-slate-900 font-heading font-bold text-sm">
+              <span className="w-6 h-6 rounded-md bg-slate-800 text-white flex items-center justify-center text-xs font-mono">✦</span>
+              <span>সফটওয়্যার (Software) — ডিজিটাল স্বচ্ছতা ও অডিট</span>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed font-body">
+              কেন্দ্রে অবস্থিত ৮-কৌণিক জ্যামিতিক ইসলামিক হীরক নোড স্বচ্ছ হিসাবরক্ষণ, ডিজিটাল অডিট ট্রেইল এবং শরিয়াহ নির্ভুলতার প্রতিনিধিত্ব করে।
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Centralized Brand Configuration & Tokens */}
       <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-5">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2">
             <Layers className="w-5 h-5 text-emerald-700" />
             <h3 className="text-base font-bold text-slate-900 font-heading">
-              ১. সেন্ট্রালাইজড ব্র্যান্ড কনফিগারেশন টোকেন (Centralized Brand Config)
+              ২. সেন্ট্রালাইজড ব্র্যান্ড কনফিগারেশন টোকেন (Centralized Brand Config)
             </h3>
           </div>
           <span className="text-xs font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
@@ -186,13 +239,13 @@ export const TSSBrandSpecimen: React.FC<{
         </div>
       </div>
 
-      {/* 3. Logo Matrix & Variants Showcase */}
+      {/* 4. Logo Matrix & Variants Showcase */}
       <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-6">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-emerald-700" />
             <h3 className="text-base font-bold text-slate-900 font-heading">
-              ২. লোগো ভ্যারিয়েন্ট ও ফর্ম্যাট ম্যাট্রিক্স (Logo Variations Matrix)
+              ৩. লোগো ভ্যারিয়েন্ট ও ফর্ম্যাট ম্যাট্রিক্স (Logo Variations Matrix)
             </h3>
           </div>
           <span className="text-xs text-slate-500">সব আকারের জন্য ভেক্টর স্কেলেবল (SVG)</span>
@@ -203,12 +256,12 @@ export const TSSBrandSpecimen: React.FC<{
           <div className="p-5 rounded-xl border border-slate-200 bg-slate-50/60 flex flex-col justify-between space-y-4">
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold text-emerald-950 font-heading">A. Full Logo</span>
+                <span className="text-xs font-bold text-emerald-950 font-heading">A. Full / Primary Logo</span>
                 <span className="text-[10px] bg-emerald-100 text-emerald-800 font-mono px-2 py-0.5 rounded font-semibold">
                   Desktop / Print
                 </span>
               </div>
-              <div className="p-3 bg-white rounded-lg border border-slate-200 flex items-center justify-center min-h-[90px]">
+              <div className="p-3 bg-white rounded-lg border border-slate-200 flex items-center justify-center min-h-[95px]">
                 <TSSLogo variant="full" theme="light" size="sm" showBangla={true} />
               </div>
             </div>
@@ -221,12 +274,12 @@ export const TSSBrandSpecimen: React.FC<{
           <div className="p-5 rounded-xl border border-slate-200 bg-slate-50/60 flex flex-col justify-between space-y-4">
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold text-emerald-950 font-heading">B. Compact Logo</span>
+                <span className="text-xs font-bold text-emerald-950 font-heading">B. Compact / Header Logo</span>
                 <span className="text-[10px] bg-amber-100 text-amber-800 font-mono px-2 py-0.5 rounded font-semibold">
                   Header / Tablet
                 </span>
               </div>
-              <div className="p-3 bg-white rounded-lg border border-slate-200 flex items-center justify-center min-h-[90px]">
+              <div className="p-3 bg-white rounded-lg border border-slate-200 flex items-center justify-center min-h-[95px]">
                 <TSSLogo variant="compact" theme="light" size="md" showBangla={true} />
               </div>
             </div>
@@ -235,34 +288,52 @@ export const TSSBrandSpecimen: React.FC<{
             </p>
           </div>
 
-          {/* C. Icon Only */}
+          {/* C. Stacked Logo */}
           <div className="p-5 rounded-xl border border-slate-200 bg-slate-50/60 flex flex-col justify-between space-y-4">
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold text-emerald-950 font-heading">C. Icon Only (Monogram)</span>
+                <span className="text-xs font-bold text-emerald-950 font-heading">C. Stacked Centered Logo</span>
+                <span className="text-[10px] bg-purple-100 text-purple-800 font-mono px-2 py-0.5 rounded font-semibold">
+                  Login / Splash
+                </span>
+              </div>
+              <div className="p-3 bg-white rounded-lg border border-slate-200 flex items-center justify-center min-h-[95px]">
+                <TSSLogo variant="stacked" theme="light" size="xs" showBangla={true} />
+              </div>
+            </div>
+            <p className="text-[11px] text-slate-500 font-body">
+              সেন্টার্ড সিম্বল ও নিচে ব্র্যান্ড নাম। ব্যবহৃত হবে: লগইন ও সাইন-ইন স্ক্রিন, কার্ড ব্যাজ ও স্প্ল্যাশ ইন্টারফেসে।
+            </p>
+          </div>
+
+          {/* D. Icon Only */}
+          <div className="p-5 rounded-xl border border-slate-200 bg-slate-50/60 flex flex-col justify-between space-y-4">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-bold text-emerald-950 font-heading">D. Standalone Monogram</span>
                 <span className="text-[10px] bg-emerald-100 text-emerald-800 font-mono px-2 py-0.5 rounded font-semibold">
                   Favicon / Mobile
                 </span>
               </div>
-              <div className="p-3 bg-white rounded-lg border border-slate-200 flex items-center justify-center min-h-[90px]">
+              <div className="p-3 bg-white rounded-lg border border-slate-200 flex items-center justify-center min-h-[95px]">
                 <TSSLogo variant="icon" theme="emerald" size="lg" />
               </div>
             </div>
             <p className="text-[11px] text-slate-500 font-body">
-              শুধুমাত্র TSS মনোগ্রাম সিম্বল। ব্যবহৃত হবে: মোবাইল কম্প্যাক্ট হেডার, সংকুচিত সাইডবার, Favicon ও বোতামে।
+              একক TSS জ্যামিতিক মনোগ্রাম সিম্বল। ব্যবহৃত হবে: মোবাইল কম্প্যাক্ট হেডার, সংকুচিত সাইডবার, Favicon ও বোতামে।
             </p>
           </div>
 
-          {/* D. App Icon (Android Launcher) */}
+          {/* E. App Icon (Android Launcher) */}
           <div className="p-5 rounded-xl border border-slate-200 bg-slate-50/60 flex flex-col justify-between space-y-4">
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold text-emerald-950 font-heading">D. Android App Icon</span>
+                <span className="text-xs font-bold text-emerald-950 font-heading">E. Android App Icon</span>
                 <span className="text-[10px] bg-blue-100 text-blue-800 font-mono px-2 py-0.5 rounded font-semibold">
                   APK / Launcher
                 </span>
               </div>
-              <div className="p-3 bg-white rounded-lg border border-slate-200 flex items-center justify-center min-h-[90px]">
+              <div className="p-3 bg-white rounded-lg border border-slate-200 flex items-center justify-center min-h-[95px]">
                 <TSSLogo variant="app-icon" theme="emerald" size="lg" />
               </div>
             </div>
@@ -273,13 +344,13 @@ export const TSSBrandSpecimen: React.FC<{
         </div>
       </div>
 
-      {/* 4. Theme & Background Adaptation Specimen */}
+      {/* 5. Theme & Background Adaptation Specimen */}
       <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-6">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2">
             <Eye className="w-5 h-5 text-emerald-700" />
             <h3 className="text-base font-bold text-slate-900 font-heading">
-              ৩. ব্যাকগ্রাউন্ড ও কালার থিম অ্যাডাপ্টেশন (Theme Matrix)
+              ৪. ব্যাকগ্রাউন্ড ও কালার থিম অ্যাডাপ্টেশন (Theme Matrix)
             </h3>
           </div>
           <span className="text-xs text-slate-500">সকল ব্যাকগ্রাউন্ডে ১০০% কনট্রাস্ট ও দৃশ্যমানতা</span>
@@ -336,13 +407,13 @@ export const TSSBrandSpecimen: React.FC<{
         </div>
       </div>
 
-      {/* 5. Live Interactive Logo Sandbox & Generator */}
+      {/* 6. Live Interactive Logo Sandbox & Generator */}
       <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-6">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2">
             <Maximize2 className="w-5 h-5 text-emerald-700" />
             <h3 className="text-base font-bold text-slate-900 font-heading">
-              ৪. লাইভ ইন্টারঅ্যাক্টিভ লোগো স্যান্ডবক্স (Live Logo Tester)
+              ৫. লাইভ ইন্টারঅ্যাক্টিভ লোগো স্যান্ডবক্স (Live Logo Tester)
             </h3>
           </div>
           <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
@@ -360,8 +431,10 @@ export const TSSBrandSpecimen: React.FC<{
               onChange={(e) => setSelectedVariant(e.target.value as TSSLogoVariant)}
               className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg font-mono text-xs focus:ring-1 focus:ring-emerald-600"
             >
-              <option value="full">Full Logo</option>
+              <option value="full">Full / Primary</option>
               <option value="compact">Compact Logo</option>
+              <option value="stacked">Stacked Logo</option>
+              <option value="horizontal">Horizontal Logo</option>
               <option value="icon">Icon Only</option>
               <option value="app-icon">App Icon</option>
               <option value="wordmark">Wordmark Only</option>
@@ -452,13 +525,13 @@ export const TSSBrandSpecimen: React.FC<{
         </div>
       </div>
 
-      {/* 6. Reports & A4 Print Branding Standard */}
+      {/* 7. Reports & A4 Print Branding Standard */}
       <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-6">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2">
             <Printer className="w-5 h-5 text-emerald-700" />
             <h3 className="text-base font-bold text-slate-900 font-heading">
-              ৫. রিপোর্ট ও A4 প্রিন্ট ব্র্যান্ডিং কাঠামো (Report & Print Standard)
+              ৬. রিপোর্ট ও A4 প্রিন্ট ব্র্যান্ডিং কাঠামো (Report & Print Standard)
             </h3>
           </div>
           <span className="text-xs bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded font-mono font-semibold">
@@ -488,12 +561,12 @@ export const TSSBrandSpecimen: React.FC<{
         </div>
       </div>
 
-      {/* 7. Brand Compliance & Safety Guardrails */}
+      {/* 8. Brand Compliance & Safety Guardrails */}
       <div className="bg-amber-50/60 p-6 rounded-2xl border border-amber-200/80 shadow-xs space-y-4">
         <div className="flex items-center gap-2 text-amber-900 font-heading">
           <ShieldCheck className="w-5 h-5 text-amber-700" />
           <h3 className="text-base font-bold">
-            ৬. ব্র্যান্ড নিরাপত্তা ও ব্যবহারবিধি (Brand Safety Rules)
+            ৭. ব্র্যান্ড নিরাপত্তা ও ব্যবহারবিধি (Brand Safety Rules)
           </h3>
         </div>
 

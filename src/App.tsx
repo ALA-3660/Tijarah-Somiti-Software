@@ -19,8 +19,11 @@ import {
   Wallet,
   ShieldCheck,
   Landmark,
-  FileSpreadsheet,
-  Receipt
+  FileSpreadsheet, 
+  Receipt,
+  CreditCard,
+  ArrowLeftRight,
+  RotateCcw
 } from 'lucide-react';
 import { AndroidDeviceFrame } from './components/AndroidDeviceFrame';
 import { ArchitectureDiagram } from './components/ArchitectureDiagram';
@@ -42,6 +45,11 @@ import { MasterDataGovernanceView } from './components/MasterDataGovernanceView'
 import { AccountManagementView } from './components/AccountManagementView';
 import { TransactionCoreView } from './components/TransactionCoreView';
 import { IncomeManagementView } from './components/IncomeManagementView';
+import { ExpenseManagementView } from './components/ExpenseManagementView';
+import { TransferManagementView } from './components/TransferManagementView';
+import { OpeningBalanceManagementView } from './components/OpeningBalanceManagementView';
+import { LedgerManagementView } from './components/LedgerManagementView';
+import { ReversalCorrectionManagementView } from './components/ReversalCorrectionManagementView';
 import { TSSLogo, TSSBrandSpecimen, BRAND_CONFIG } from './branding';
 import { EnvironmentType, OrganizationContext, UiSimulatorState } from './types';
 
@@ -118,7 +126,7 @@ const INITIAL_ORGS: OrganizationContext[] = [
 ];
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'income_management' | 'financial_transaction_core' | 'account_management' | 'master_data_governance' | 'fund_management' | 'head_management' | 'master_data_foundation' | 'member_register' | 'member_master_data' | 'member_profile' | 'member_application' | 'authentication' | 'organization' | 'navigation' | 'simulator' | 'tss_branding' | 'design_system' | 'architecture' | 'code' | 'rules' | 'tests'>('income_management');
+  const [activeTab, setActiveTab] = useState<'reversal_correction' | 'ledger_management' | 'opening_balance' | 'transfer_management' | 'expense_management' | 'income_management' | 'financial_transaction_core' | 'account_management' | 'master_data_governance' | 'fund_management' | 'head_management' | 'master_data_foundation' | 'member_register' | 'member_master_data' | 'member_profile' | 'member_application' | 'authentication' | 'organization' | 'navigation' | 'simulator' | 'tss_branding' | 'design_system' | 'architecture' | 'code' | 'rules' | 'tests'>('reversal_correction');
   const [environment, setEnvironment] = useState<EnvironmentType>('development');
   const [orgsList, setOrgsList] = useState<OrganizationContext[]>(INITIAL_ORGS);
   const [activeOrg, setActiveOrg] = useState<OrganizationContext>(DEMO_ORGANIZATION);
@@ -180,6 +188,66 @@ export default function App() {
 
         {/* Tab Navigation */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex gap-1 sm:gap-2 overflow-x-auto text-xs border-t border-slate-100 font-numeric">
+          <button
+            onClick={() => setActiveTab('reversal_correction')}
+            className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+              activeTab === 'reversal_correction'
+                ? 'border-rose-700 text-rose-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <RotateCcw className="w-4 h-4 text-rose-700" />
+            <span>সংশোধন ও রিভার্সাল (Prompt 5.8)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('ledger_management')}
+            className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+              activeTab === 'ledger_management'
+                ? 'border-indigo-700 text-indigo-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <BookOpen className="w-4 h-4 text-indigo-700" />
+            <span>লেজার ও স্থিতি (Prompt 5.7)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('opening_balance')}
+            className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+              activeTab === 'opening_balance'
+                ? 'border-teal-700 text-teal-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Wallet className="w-4 h-4 text-teal-700" />
+            <span>প্রারম্ভিক স্থিতি (Prompt 5.6)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('transfer_management')}
+            className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+              activeTab === 'transfer_management'
+                ? 'border-indigo-700 text-indigo-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <ArrowLeftRight className="w-4 h-4 text-indigo-700" />
+            <span>হিসাব স্থানান্তর / ট্রান্সফার (Prompt 5.5)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('expense_management')}
+            className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
+              activeTab === 'expense_management'
+                ? 'border-amber-700 text-amber-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <CreditCard className="w-4 h-4 text-amber-700" />
+            <span>ব্যয় ও পরিশোধ (Prompt 5.4)</span>
+          </button>
+
           <button
             onClick={() => setActiveTab('income_management')}
             className={`py-3 px-3.5 border-b-2 font-semibold flex items-center gap-2 whitespace-nowrap transition ${
@@ -436,6 +504,21 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6">
+        {activeTab === 'reversal_correction' && (
+          <ReversalCorrectionManagementView currentOrg={activeOrg} />
+        )}
+        {activeTab === 'ledger_management' && (
+          <LedgerManagementView currentOrg={activeOrg} />
+        )}
+        {activeTab === 'opening_balance' && (
+          <OpeningBalanceManagementView currentOrg={activeOrg} />
+        )}
+        {activeTab === 'transfer_management' && (
+          <TransferManagementView currentOrg={activeOrg} />
+        )}
+        {activeTab === 'expense_management' && (
+          <ExpenseManagementView currentOrg={activeOrg} orgsList={orgsList} />
+        )}
         {activeTab === 'income_management' && (
           <IncomeManagementView currentOrg={activeOrg} />
         )}
